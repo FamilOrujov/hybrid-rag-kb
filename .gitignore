@@ -1,0 +1,57 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Packaging artifacts
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local env files (keep example)
+.env
+.env.*
+!.env.example
+
+# Runtime data and indexes (avoid leaking user documents)
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.faiss
+
+# Local docs and large files (do not publish)
+ai-cons-11.pdf
+ai-consciousness.pdf
+TECHNICAL_DOCUMENTATION.md
+my_tech_doc.md
