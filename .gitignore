@@ -49,9 +49,3 @@ data/
 *.db-wal
 *.db-shm
 *.faiss
-
-# Local docs and large files (do not publish)
-ai-cons-11.pdf
-ai-consciousness.pdf
-TECHNICAL_DOCUMENTATION.md
-my_tech_doc.md
