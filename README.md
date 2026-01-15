@@ -72,8 +72,6 @@
     - 12.6 [Zero Vectors Indexed](#126-zero-vectors-indexed)
     - 12.7 [Dimension Mismatch Error](#127-dimension-mismatch-error)
 13. [Documentation](#13-documentation)
-14. [License](#14-license)
-15. [Acknowledgments](#15-acknowledgments)
 
 ---
 
