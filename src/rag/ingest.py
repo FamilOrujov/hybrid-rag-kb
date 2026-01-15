@@ -9,9 +9,9 @@ import aiosqlite
 import numpy as np
 from fastapi import UploadFile
 
-from app.rag.loaders import load_text_from_path
-from app.rag.chunking import chunk_text
-from app.rag.vectorstore import FaissIndexManager
+from src.rag.loaders import load_text_from_path
+from src.rag.chunking import chunk_text
+from src.rag.vectorstore import FaissIndexManager
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -40,6 +40,7 @@ async def ingest_files(
 
     ingested_docs = 0
     ingested_chunks = 0
+    ingested_vectors = 0
 
     for f in files:
         data = await f.read()
@@ -91,5 +92,6 @@ async def ingest_files(
 
         ingested_docs += 1
         ingested_chunks += len(chunks)
+        ingested_vectors += len(chunk_ids)
 
-    return {"documents_added": ingested_docs, "chunks_added": ingested_chunks}
+    return {"documents_added": ingested_docs, "chunks_added": ingested_chunks, "vectors_added": ingested_vectors}

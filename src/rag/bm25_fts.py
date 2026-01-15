@@ -6,7 +6,7 @@ from typing import Any
 
 import aiosqlite
 
-# Small practical stopword set. You can expand later.
+# Small practical stopword set
 _STOPWORDS = {
     "a", "an", "the", "and", "or", "not",
     "to", "of", "in", "on", "for", "with", "by", "from",

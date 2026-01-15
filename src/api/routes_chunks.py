@@ -5,8 +5,8 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.config import settings
-from app.db.sqlite import connect
+from src.core.config import settings
+from src.db.sqlite import connect
 
 router = APIRouter()
 

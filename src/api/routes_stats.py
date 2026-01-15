@@ -5,8 +5,9 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from app.core.config import settings
-from app.db.sqlite import connect
+from src.core.config import settings
+from src.db.sqlite import connect
+from src.api.routes_models import get_current_models
 
 router = APIRouter()
 
@@ -113,11 +114,12 @@ async def stats() -> dict[str, Any]:
         gpu_info["error"] = f"{type(e).__name__}: {e}"
 
 
-    # Reproducibility info
+    # Reproducibility info (use runtime model state, not settings)
+    current_models = get_current_models()
     repro: dict[str, Any] = {
         "ollama_base_url": settings.ollama_base_url,
-        "chat_model": settings.ollama_chat_model,
-        "embed_model": settings.ollama_embed_model,
+        "chat_model": current_models["chat_model"],
+        "embed_model": current_models["embed_model"],
         "num_predict": int(getattr(settings, "ollama_num_predict", 0)),
         # Chunking params. If you have them in settings, they will appear here
         "chunk_size": getattr(settings, "chunk_size", None),

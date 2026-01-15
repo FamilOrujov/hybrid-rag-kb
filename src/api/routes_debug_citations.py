@@ -7,12 +7,12 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from langchain_ollama import ChatOllama
 
-from app.core.config import settings
-from app.db.sqlite import connect
-from app.rag.embeddings import make_embedder
-from app.rag.vectorstore import FaissIndexManager
-from app.rag.qa import answer_question
-from app.rag.citations import validate_citations_detailed
+from src.core.config import settings
+from src.db.sqlite import connect
+from src.rag.embeddings import make_embedder
+from src.rag.vectorstore import FaissIndexManager
+from src.rag.qa import answer_question
+from src.rag.citations import validate_citations_detailed
 
 router = APIRouter()
 

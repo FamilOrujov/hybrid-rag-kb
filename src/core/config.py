@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     ollama_num_predict: int = 512
 
     sqlite_path: str = "./data/db/app.db"
-    schema_path: str = "./app/db/schema.sql"
+    schema_path: str = "./src/db/schema.sql"
 
     raw_dir: str = "./data/raw"
     faiss_dir: str = "./data/index/faiss"

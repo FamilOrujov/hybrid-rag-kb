@@ -1,10 +1,11 @@
 [project]
 name = "hybrid-rag-kb"
 version = "0.1.0"
-description = "Add your description here"
+description = "Hybrid RAG Knowledge Base with BM25 + FAISS retrieval and local LLM"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    # Core RAG dependencies
     "aiosqlite>=0.22.1",
     "faiss-gpu-cu12==1.8.0.2",
     "fastapi>=0.128.0",
@@ -21,4 +22,20 @@ dependencies = [
     "rank-bm25>=0.2.2",
     "tqdm>=4.67.1",
     "uvicorn[standard]>=0.40.0",
+    # CLI dependencies
+    "rich>=13.9.0",
+    "prompt-toolkit>=3.0.48",
+    "httpx>=0.28.0",
+    "psutil>=6.0.0",
 ]
+
+[project.scripts]
+hybrid-rag = "cli.main:main"
+hrag = "cli.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src", "cli"]

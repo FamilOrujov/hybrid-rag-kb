@@ -10,36 +10,44 @@ __pycache__/
 .coverage
 .coverage.*
 htmlcov/
+coverage.xml
+*.cover
 .cache/
+.tox/
+.nox/
 
-# Virtual environments
+# Virtual environments and package management
 .venv/
 venv/
 ENV/
 env/
+.env
+.env.*
+!.env.example
+__pypackages__/
 
 # Packaging artifacts
 build/
 dist/
 *.egg-info/
 pip-wheel-metadata/
+*.spec
+manifest
+*.manifest
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-
-# OS / editor files
-.DS_Store
-Thumbs.db
+# IDE and Editor files
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# Local env files (keep example)
-.env
-.env.*
-!.env.example
+# Jupyter / IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
 
 # Runtime data and indexes (avoid leaking user documents)
 data/
@@ -49,3 +57,7 @@ data/
 *.db-wal
 *.db-shm
 *.faiss
+
+# Logs and temp files
+*.log
+*.tmp
