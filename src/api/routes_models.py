@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -11,6 +13,7 @@ from langchain_ollama import ChatOllama
 
 from src.core.config import settings
 from src.rag.embeddings import make_embedder
+from src.api.model_config import get_initial_chat_model, get_initial_embed_model
 
 router = APIRouter()
 
@@ -21,9 +24,55 @@ class ModelUpdateRequest(BaseModel):
     embed_model: str | None = None
 
 
-# Runtime model state
-_current_chat_model: str = settings.ollama_chat_model
-_current_embed_model: str = settings.ollama_embed_model
+# Persistent configuration file path (stored alongside other data)
+_MODEL_CONFIG_PATH = Path(settings.faiss_dir).parent.parent / "model_config.json"
+
+
+def _load_persistent_config() -> dict[str, str]:
+    """Load model configuration from persistent storage.
+    
+    Returns config from file if it exists, otherwise returns empty dict.
+    The file stores user's model preferences that persist across restarts.
+    """
+    if _MODEL_CONFIG_PATH.exists():
+        try:
+            with open(_MODEL_CONFIG_PATH, "r") as f:
+                config = json.load(f)
+                return {
+                    "chat_model": config.get("chat_model"),
+                    "embed_model": config.get("embed_model"),
+                }
+        except (json.JSONDecodeError, IOError):
+            pass  # Fall back to defaults on error
+    return {}
+
+
+def _save_persistent_config(chat_model: str | None = None, embed_model: str | None = None) -> None:
+    """Save model configuration to persistent storage.
+    
+    Only saves non-None values. Preserves existing values for keys not provided.
+    """
+    # Ensure parent directory exists
+    _MODEL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing config to preserve values not being updated
+    existing = _load_persistent_config()
+    
+    new_config = {
+        "chat_model": chat_model if chat_model is not None else existing.get("chat_model") or settings.ollama_chat_model,
+        "embed_model": embed_model if embed_model is not None else existing.get("embed_model") or settings.ollama_embed_model,
+    }
+    
+    try:
+        with open(_MODEL_CONFIG_PATH, "w") as f:
+            json.dump(new_config, f, indent=2)
+    except IOError:
+        pass  # Silently fail if we can't write (read-only filesystem, etc.)
+
+
+# Runtime model state - initialized from persistent config if available
+_current_chat_model: str = get_initial_chat_model()
+_current_embed_model: str = get_initial_embed_model()
 
 
 def get_current_models() -> dict[str, str]:
@@ -100,8 +149,8 @@ async def update_models(req: ModelUpdateRequest) -> dict[str, Any]:
     """
     Update the active chat and/or embedding model.
     
-    Note: This updates the runtime configuration. The server will need to
-    reinitialize the model instances. For a persistent change, update .env.
+    Changes are persisted to disk and will survive server restarts.
+    The persistent config takes precedence over .env defaults.
     """
     global _current_chat_model, _current_embed_model
     
@@ -208,6 +257,13 @@ async def update_models(req: ModelUpdateRequest) -> dict[str, Any]:
     
     if errors:
         raise HTTPException(status_code=400, detail={"errors": errors, "changes": changes})
+    
+    # Persist the model changes to disk so they survive server restarts
+    if changes:
+        _save_persistent_config(
+            chat_model=_current_chat_model if "chat_model" in changes else None,
+            embed_model=_current_embed_model if "embed_model" in changes else None,
+        )
     
     return {
         "success": True,

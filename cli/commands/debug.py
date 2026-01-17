@@ -220,8 +220,8 @@ class DebugCommand(BaseCommand):
             "FAISS Vectors", str(debug.get("faiss_ntotal", "?")),
         )
         table.add_row(
-            "Embedding Dim", str(debug.get("embedding_dim", "?")),
-            "", "",
+            "Query Embed Dim", str(debug.get("query_embedding_dim", "?")),
+            "FAISS Index Dim", str(debug.get("faiss_index_dim", "?")),
         )
         
         console.print(Panel(

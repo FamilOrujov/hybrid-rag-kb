@@ -10,13 +10,14 @@ from src.db.sqlite import connect
 from src.rag.embeddings import make_embedder
 from src.rag.vectorstore import FaissIndexManager
 from src.rag.qa import answer_question
+from src.api.model_config import get_initial_chat_model, get_initial_embed_model
 
 router = APIRouter()
 
-_embedder = make_embedder(settings.ollama_base_url, settings.ollama_embed_model)
+_embedder = make_embedder(settings.ollama_base_url, get_initial_embed_model())
 
 _llm = ChatOllama(
-    model=settings.ollama_chat_model,
+    model=get_initial_chat_model(),
     base_url = settings.ollama_base_url,
     temperature=0,
     validate_model_on_init=True,

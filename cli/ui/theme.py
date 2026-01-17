@@ -65,7 +65,7 @@ class Theme:
             "command": Style(color=self.primary, bold=True),
             "path": Style(color=self.secondary),
             "number": Style(color=self.warning),
-            "citation": Style(color=self.warning, bold=True),
+            "citation": Style(color="#00CED1", bold=True),  # Dark Cyan - distinct from text
             "orange": Style(color="#FF8C42"),
             "purple": Style(color="#9D4EDD"),
             "doctor.ok": Style(color="#00E676", bold=True),

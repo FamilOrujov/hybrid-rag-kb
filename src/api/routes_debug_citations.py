@@ -13,17 +13,18 @@ from src.rag.embeddings import make_embedder
 from src.rag.vectorstore import FaissIndexManager
 from src.rag.qa import answer_question
 from src.rag.citations import validate_citations_detailed
+from src.api.model_config import get_initial_chat_model, get_initial_embed_model
 
 router = APIRouter()
 
 
-_embedder = make_embedder(settings.ollama_base_url, settings.ollama_embed_model)
+_embedder = make_embedder(settings.ollama_base_url, get_initial_embed_model())
 
 _llm = ChatOllama(
-    model=settings.ollama_chat_model,
+    model=get_initial_chat_model(),
     temperature=0,
     base_url=settings.ollama_base_url,
-    num_predict=settings.ollama_num_predict,  # max tokens generated :contentReference[oaicite:1]{index=1}
+    num_predict=settings.ollama_num_predict,
 )
 
 _faiss = FaissIndexManager(

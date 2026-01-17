@@ -469,17 +469,10 @@ class ModelCommand(BaseCommand):
         else:
             console.print("[muted]No changes were made.[/muted]")
         
-        # Warning about persistence
+        # Note about persistence
         console.print()
-        env_lines = []
-        if chat_model:
-            env_lines.append(f"  OLLAMA_CHAT_MODEL={chat_model}")
-        if embed_model:
-            env_lines.append(f"  OLLAMA_EMBED_MODEL={embed_model}")
-        
-        print_warning(
-            "Note: This change is temporary. To persist, update your .env file:\n" +
-            "\n".join(env_lines)
+        console.print(
+            "[muted]Model changes are automatically saved and will persist across server restarts.[/muted]"
         )
         
         return True

@@ -14,10 +14,11 @@ from src.rag.bm25_fts import bm25_search, make_bm25_query
 from src.rag.embeddings import make_embedder
 from src.rag.hybrid_fusion import rrf_fuse
 from src.rag.vectorstore import FaissIndexManager
+from src.api.model_config import get_initial_embed_model
 
 router = APIRouter()
 
-_embedder = make_embedder(settings.ollama_base_url, settings.ollama_embed_model)
+_embedder = make_embedder(settings.ollama_base_url, get_initial_embed_model())
 _faiss = FaissIndexManager(
     settings.faiss_dir,
     use_gpu=settings.use_faiss_gpu,

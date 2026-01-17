@@ -87,17 +87,26 @@ def create_stats_panel(data: dict[str, Any]) -> Panel:
 
 
 def format_answer_with_citations(answer: str) -> Text:
-    """Format answer text with highlighted citations."""
+    """Format answer text with highlighted citations.
+    
+    Matches citation formats:
+    - [cid:123]
+    - [Source: filename | cid:123]
+    - [Source: filename | cid:5, 4] (multiple cids)
+    """
     text = Text()
     
-    # Pattern to match citations like [cid:123] or [Source: ... cid:123]
-    pattern = r'\[(?:Source:[^\]]*)?cid:(\d+)\]|\[cid:(\d+)\]'
+    # Pattern to match all citation formats:
+    # - [cid:123] - simple format
+    # - [Source: ... | cid:...] - full format with filename
+    # The pattern matches the entire bracketed citation
+    pattern = r'\[Source:[^\]]+\]|\[cid:\d+(?:,\s*\d+)*\]'
     
     last_end = 0
     for match in re.finditer(pattern, answer):
         # Add text before the citation
         text.append(answer[last_end:match.start()], style="text")
-        # Add the citation with highlighting
+        # Add the citation with highlighting (cyan/teal for visibility)
         text.append(match.group(0), style="citation")
         last_end = match.end()
     

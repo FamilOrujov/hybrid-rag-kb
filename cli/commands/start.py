@@ -238,14 +238,11 @@ class StopCommand(BaseCommand):
         return self._stop_server()
     
     def _stop_server(self, silent: bool = False) -> bool:
-        """Stop the server. Returns True if stopped successfully."""
-        # Check if server is running
-        health = self.api.health()
-        if not health.success:
-            if not silent:
-                print_warning("Server is not running")
-            return True
+        """Stop the server. Returns True if stopped successfully.
         
+        Always searches for and kills orphan processes, even if health check fails.
+        This handles cases where the server crashed but processes are still lingering.
+        """
         # Find and kill the server process
         try:
             import psutil
@@ -257,7 +254,7 @@ class StopCommand(BaseCommand):
         if not silent:
             console.print()
         
-        # Find uvicorn processes
+        # Find uvicorn processes (always search, even if health check fails)
         killed = 0
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
@@ -269,14 +266,25 @@ class StopCommand(BaseCommand):
                 pass
         
         if killed > 0:
+            # Wait for processes to terminate gracefully
             time.sleep(1)
+            
+            # Force kill any remaining processes
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = proc.info.get('cmdline', [])
+                    if cmdline and 'uvicorn' in ' '.join(cmdline) and 'src.main:app' in ' '.join(cmdline):
+                        proc.kill()  # Force kill if still running
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            
             if not silent:
                 print_success(f"Stopped {killed} server process(es)")
             return True
         else:
             if not silent:
-                print_warning("Could not find server process to stop")
-            return False
+                print_warning("Server is not running")
+            return True  # Not an error, just nothing to stop
 
 
 class RestartCommand(BaseCommand):
