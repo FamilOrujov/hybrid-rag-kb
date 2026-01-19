@@ -150,7 +150,7 @@ class HelpCommand(BaseCommand):
         
         console.print(Panel(
             table,
-            title="[primary]📚 Available Commands[/primary]",
+            title="[primary]Available Commands[/primary]",
             border_style="primary",
             padding=(1, 2),
         ))
@@ -158,7 +158,7 @@ class HelpCommand(BaseCommand):
         # Tips
         console.print()
         tips = Text()
-        tips.append("💡 Tips:\n", style="primary")
+        tips.append("Tips:\n", style="primary")
         tips.append("  • ", style="muted")
         tips.append("Use ", style="text")
         tips.append("/help <command>", style="command")

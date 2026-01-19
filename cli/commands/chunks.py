@@ -89,7 +89,7 @@ class ChunksCommand(BaseCommand):
         
         console.print(Panel(
             meta_text,
-            title=f"[primary]📄 Chunk #{data.get('chunk_id', '?')}[/primary]",
+            title=f"[primary]Chunk #{data.get('chunk_id', '?')}[/primary]",
             border_style="primary",
             padding=(1, 2),
         ))
@@ -99,7 +99,7 @@ class ChunksCommand(BaseCommand):
         console.print()
         console.print(Panel(
             Text(text, style="text"),
-            title="[tertiary]📝 Content[/tertiary]",
+            title="[tertiary]Content[/tertiary]",
             subtitle=f"[muted]{len(text)} characters[/muted]",
             border_style="tertiary",
             padding=(1, 2),

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-import os
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -11,6 +11,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 from prompt_toolkit.formatted_text import HTML
 from rich.text import Text
+from rich.live import Live
 
 from cli import __version__, __app_name__
 from cli.core.config import CLIConfig, get_config, set_config
@@ -33,11 +34,18 @@ from cli.commands.reset import ResetCommand
 from cli.commands.model import ModelCommand
 
 
-# Prompt style
+# Prompt styling
 PROMPT_STYLE = Style.from_dict({
-    "prompt": "#00D9FF bold",
-    "path": "#4ECDC4",
-    "arrow": "#00D9FF bold",
+    "prompt": "#FF8C42 bold",
+    # Completion menu styling
+    "completion-menu": "bg:#1a1625 #e8e8e8",
+    "completion-menu.completion": "bg:#1a1625 #c77dff",
+    "completion-menu.completion.current": "bg:#9d4edd #ffffff bold",
+    "completion-menu.meta.completion": "bg:#1a1625 #888888",
+    "completion-menu.meta.completion.current": "bg:#9d4edd #e8e8e8",
+    # Scrollbar
+    "scrollbar.background": "bg:#1a1625",
+    "scrollbar.button": "bg:#9d4edd",
 })
 
 
@@ -98,12 +106,13 @@ class HybridRAGCLI:
             completer=self.completer,
             style=PROMPT_STYLE,
             complete_while_typing=True,
+            complete_in_thread=True,
+            mouse_support=False,
         )
     
     def get_prompt(self) -> HTML:
         """Generate the prompt."""
-        theme = get_theme()
-        return HTML(f'<prompt>❯</prompt> ')
+        return HTML('<prompt>❯</prompt> ')
     
     def run(self) -> int:
         """Run the CLI REPL."""
@@ -132,7 +141,7 @@ class HybridRAGCLI:
                 
                 # Handle built-in commands
                 if cmd_name in ["quit", "exit"]:
-                    console.print("[muted]Goodbye! 👋[/muted]")
+                    console.print("[muted]Goodbye.[/muted]")
                     return 0
                 
                 if cmd_name == "clear":
@@ -161,7 +170,7 @@ class HybridRAGCLI:
             except KeyboardInterrupt:
                 console.print("\n[muted]Type /quit to exit[/muted]")
             except EOFError:
-                console.print("\n[muted]Goodbye! 👋[/muted]")
+                console.print("\n[muted]Goodbye.[/muted]")
                 return 0
             except Exception as e:
                 print_error(f"Unexpected error: {e}")

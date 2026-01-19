@@ -4,12 +4,20 @@ from __future__ import annotations
 
 from cli.commands.base import BaseCommand
 from cli.ui.console import console, print_error, print_success, print_warning
-from cli.ui.panels import create_query_result_panel, create_sources_panel, create_debug_panel
+from cli.ui.panels import (
+    create_query_result_panel,
+    create_sources_panel,
+    create_debug_panel,
+    create_user_message_bubble,
+    create_assistant_message_bubble,
+)
 from cli.ui.spinners import create_spinner
 
 from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.text import Text
+from rich.align import Align
+from rich import box
 
 
 class QueryCommand(BaseCommand):
@@ -101,7 +109,7 @@ class QueryCommand(BaseCommand):
         
         if cited_ids:
             text = Text()
-            text.append("\n  📎 ", style="muted")
+            text.append("\n  ", style="muted")
             text.append(f"{len(cited_ids)} citations", style="citation")
             text.append(" from ", style="muted")
             text.append(f"{len(allowed_ids)} sources", style="tertiary")
@@ -130,13 +138,25 @@ class InteractiveQueryCommand(QueryCommand):
         session_id = flags.get("session", self.config.session_id)
         
         console.print()
+        # Modern chat mode header
+        header = Text()
+        header.append("", style="#C77DFF")
+        header.append("Interactive Chat Mode", style="#C77DFF bold")
+        header.append("\n\n", style="")
+        header.append("Type your questions and press Enter.\n", style="#888888")
+        header.append("Commands: ", style="#555555")
+        header.append("/sources", style="#FF8C42")
+        header.append(" • ", style="#555555")
+        header.append("/debug", style="#FF8C42")
+        header.append(" • ", style="#555555")
+        header.append("/clear", style="#FF8C42")
+        header.append(" • ", style="#555555")
+        header.append("/exit", style="#FF8C42")
+        
         console.print(Panel(
-            Text.from_markup(
-                "[primary]Interactive Chat Mode[/primary]\n\n"
-                "Type your questions and press Enter.\n"
-                "Commands: [command]/sources[/command] [command]/debug[/command] [command]/clear[/command] [command]/exit[/command]"
-            ),
-            border_style="primary",
+            header,
+            border_style="#5D4E6D",
+            box=box.ROUNDED,
             padding=(1, 2),
         ))
         
@@ -146,7 +166,7 @@ class InteractiveQueryCommand(QueryCommand):
         while True:
             console.print()
             query = Prompt.ask(
-                "[primary]❯[/primary]",
+                "[#FF8C42]❯[/#FF8C42]",
                 console=console,
             ).strip()
             
@@ -155,21 +175,28 @@ class InteractiveQueryCommand(QueryCommand):
             
             # Handle special commands
             if query.lower() in ["/exit", "/quit", "/q"]:
-                console.print("[muted]Exiting chat mode...[/muted]")
+                console.print("[#888888]Exiting chat mode...[/#888888]")
                 break
             elif query.lower() == "/sources":
                 show_sources = not show_sources
-                console.print(f"[info]Sources display: {'enabled' if show_sources else 'disabled'}[/info]")
+                status = "[#00E676]enabled[/#00E676]" if show_sources else "[#888888]disabled[/#888888]"
+                console.print(f"[#888888]Sources display:[/#888888] {status}")
                 continue
             elif query.lower() == "/debug":
                 show_debug = not show_debug
-                console.print(f"[info]Debug display: {'enabled' if show_debug else 'disabled'}[/info]")
+                status = "[#00E676]enabled[/#00E676]" if show_debug else "[#888888]disabled[/#888888]"
+                console.print(f"[#888888]Debug display:[/#888888] {status}")
                 continue
             elif query.lower() == "/clear":
                 console.clear()
                 continue
             
-            # Execute query
+            # Show user message bubble
+            console.print()
+            console.print(Align.right(create_user_message_bubble(query)))
+            console.print()
+            
+            # Execute query with spinner
             with create_spinner("Thinking...", style="thinking"):
                 response = self.api.query(
                     query=query,
@@ -189,8 +216,8 @@ class InteractiveQueryCommand(QueryCommand):
             sources = data.get("sources", [])
             debug = data.get("debug", {})
             
-            console.print()
-            console.print(create_query_result_panel(answer, query))
+            # Show assistant response bubble
+            console.print(create_assistant_message_bubble(answer))
             
             if show_sources and sources:
                 console.print()

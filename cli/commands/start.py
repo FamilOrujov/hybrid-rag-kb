@@ -205,7 +205,7 @@ class StartCommand(BaseCommand):
     def _create_startup_text(self, host: str, port: int, background: bool) -> Text:
         """Create the startup info text."""
         text = Text()
-        text.append("🚀 Starting Server\n\n", style="#FF8C42 bold")
+        text.append("Starting Server\n\n", style="#FF8C42 bold")
         text.append("  Host:   ", style="muted")
         text.append(f"{host}\n", style="text")
         text.append("  Port:   ", style="muted")

@@ -27,6 +27,7 @@ SPINNER_STYLES = {
     "doctor": "dots8Bit",
     "pulse": "point",
     "bounce": "bouncingBall",
+    "modern": "aesthetic",
 }
 
 # Animated frames for custom animations
@@ -34,6 +35,7 @@ LOADING_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇",
 PULSE_FRAMES = ["●", "◉", "○", "◉"]
 CHECK_FRAMES = ["◯", "◔", "◑", "◕", "●"]
 PROGRESS_CHARS = "▏▎▍▌▋▊▉█"
+GRADIENT_COLORS = ["#FF6B35", "#FF8C42", "#FFB347", "#C77DFF", "#9D4EDD", "#7B2CBF"]
 
 
 @contextmanager
@@ -43,23 +45,70 @@ def create_spinner(
     success_message: str | None = None,
     error_message: str | None = None,
 ) -> Generator[None, None, None]:
-    """Context manager for showing a spinner during an operation."""
+    """Context manager for showing a spinner during an operation.
     
+    Features modern styling with gradient-colored spinner.
+    """
     spinner_type = SPINNER_STYLES.get(style, "dots")
     
-    with console.status(
-        f"[primary]{message}[/primary]",
-        spinner=spinner_type,
-        spinner_style="primary",
-    ) as status:
-        try:
-            yield
-            if success_message:
-                console.print(f"[success]✔ {success_message}[/success]")
-        except Exception as e:
-            if error_message:
-                console.print(f"[error]✖ {error_message}: {e}[/error]")
-            raise
+    # Use custom animated spinner for TTY
+    if sys.stdout.isatty() and style in ["thinking", "processing", "loading"]:
+        start_time = time.time()
+        frame_idx = 0
+        
+        with Live(console=console, refresh_per_second=12, transient=True) as live:
+            def update_display():
+                nonlocal frame_idx
+                frame = LOADING_FRAMES[frame_idx % len(LOADING_FRAMES)]
+                color = GRADIENT_COLORS[frame_idx % len(GRADIENT_COLORS)]
+                elapsed = time.time() - start_time
+                
+                text = Text()
+                text.append(f"  {frame} ", style=color)
+                text.append(message, style="#e8e8e8")
+                text.append(f" ({elapsed:.1f}s)", style="#555555")
+                live.update(text)
+                frame_idx += 1
+            
+            # Create a simple context that updates the display
+            import threading
+            stop_event = threading.Event()
+            
+            def animate():
+                while not stop_event.is_set():
+                    update_display()
+                    time.sleep(0.08)
+            
+            thread = threading.Thread(target=animate, daemon=True)
+            thread.start()
+            
+            try:
+                yield
+                stop_event.set()
+                thread.join(timeout=0.5)
+                if success_message:
+                    console.print(f"  [success]✔[/success] {success_message}")
+            except Exception as e:
+                stop_event.set()
+                thread.join(timeout=0.5)
+                if error_message:
+                    console.print(f"  [error]✖[/error] {error_message}: {e}")
+                raise
+    else:
+        # Fallback to standard Rich spinner
+        with console.status(
+            f"[primary]{message}[/primary]",
+            spinner=spinner_type,
+            spinner_style="primary",
+        ) as status:
+            try:
+                yield
+                if success_message:
+                    console.print(f"  [success]✔[/success] {success_message}")
+            except Exception as e:
+                if error_message:
+                    console.print(f"  [error]✖[/error] {error_message}: {e}")
+                raise
 
 
 def create_progress_bar(description: str = "Processing") -> Progress:
@@ -178,7 +227,7 @@ class DoctorAnimation:
         
         return Panel(
             content,
-            title=f"[primary]🩺 {self.title}[/primary]",
+            title=f"[primary]{self.title}[/primary]",
             border_style="primary",
             padding=(1, 2),
         )

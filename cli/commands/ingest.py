@@ -162,7 +162,7 @@ class IngestCommand(BaseCommand):
         console.print()
         
         table = Table(
-            title="[primary]📁 Files to Ingest[/primary]",
+            title="[primary]Files to Ingest[/primary]",
             show_header=True,
             header_style="primary",
             border_style="muted",

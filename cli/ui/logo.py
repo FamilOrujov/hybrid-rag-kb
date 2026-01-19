@@ -175,3 +175,11 @@ def print_mini_logo() -> None:
     text.append("RAG", style="#9D4EDD bold")
     text.append(" ◆", style="#FF8C42")
     console.print(Align.center(text))
+
+
+def print_minimal_logo() -> None:
+    """Print minimal logo for clear screen - just the main logo."""
+    console.print()
+    logo_text = create_logo_text()
+    console.print(Align.center(logo_text))
+    console.print()
