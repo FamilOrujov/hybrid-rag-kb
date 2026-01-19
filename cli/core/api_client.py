@@ -20,10 +20,10 @@ class APIResponse:
 class APIClient:
     """HTTP client for the Hybrid RAG API."""
     
-    # Default timeout for most operations (2 minutes)
-    DEFAULT_TIMEOUT = 120.0
-    # Extended timeout for LLM operations that may take longer (5 minutes)
-    LLM_TIMEOUT = 300.0
+    # Default timeout for most operations (5 minutes)
+    DEFAULT_TIMEOUT = 300.0
+    # Extended timeout for LLM operations that may take longer (10 minutes)
+    LLM_TIMEOUT = 600.0
     
     def __init__(self, base_url: str = "http://127.0.0.1:8000", timeout: float = DEFAULT_TIMEOUT):
         self.base_url = base_url.rstrip("/")
@@ -167,7 +167,7 @@ class APIClient:
             return APIResponse(success=False, error="No valid files to ingest")
         
         try:
-            result = self._request("POST", "/ingest", files=files)
+            result = self._request("POST", "/ingest", files=files, use_llm_timeout=True)
         finally:
             # Close file handles
             for _, (_, fh, _) in files:

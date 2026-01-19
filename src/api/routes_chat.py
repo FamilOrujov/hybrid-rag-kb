@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 from pydantic import BaseModel
+import httpx
 
 from langchain_ollama import ChatOllama
 
@@ -22,6 +23,7 @@ _llm = ChatOllama(
     temperature=0,
     validate_model_on_init=True,
     num_predict=settings.ollama_num_predict,
+    client_kwargs={"timeout": httpx.Timeout(600.0)},
 )
 
 

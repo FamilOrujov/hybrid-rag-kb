@@ -78,8 +78,15 @@ class FaissIndexManager:
 
         assert self.cpu_index is not None
 
-        res = faiss.StandardGpuResources()
-        self.gpu_index = faiss.index_cpu_to_gpu(res, self.gpu_device, self.cpu_index)
+        try:
+            res = faiss.StandardGpuResources()
+            self.gpu_index = faiss.index_cpu_to_gpu(res, self.gpu_device, self.cpu_index)
+        except RuntimeError as e:
+            # Handle CUDA out of memory or other GPU errors gracefully
+            # Fall back to CPU-only mode
+            self.gpu_index = None
+            import logging
+            logging.warning(f"Failed to copy FAISS index to GPU, falling back to CPU: {e}")
 
     def add(self, ids: list[int], vectors: np.ndarray) -> None:
         """
