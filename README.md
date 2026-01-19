@@ -12,6 +12,7 @@
 <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-FTS5-044A64?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"></a>
 <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-2.12+-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic"></a>
 <a href="https://rich.readthedocs.io/"><img src="https://img.shields.io/badge/Rich-CLI-4B8BBE?style=for-the-badge" alt="Rich"></a>
+<a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"></a>
 
 ![Hybrid RAG Demo](assets/hybrid_rag_main.gif)
 
@@ -40,7 +41,8 @@
 4. [Installation](#4-installation)
    - 4.1 [Using uv (Recommended)](#41-using-uv-recommended)
    - 4.2 [Using pip](#42-using-pip)
-   - 4.3 [Pull Required Ollama Models](#43-pull-required-ollama-models)
+   - 4.3 [Using Docker](#43-using-docker)
+   - 4.4 [Pull Required Ollama Models](#44-pull-required-ollama-models)
 5. [Quick Start](#5-quick-start)
    - 5.1 [Launch the CLI](#51-launch-the-cli)
    - 5.2 [Start the Server](#52-start-the-server)
@@ -185,7 +187,44 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e .
 ```
 
-### 4.3 Pull Required Ollama Models
+### 4.3 Using Docker
+
+Docker provides the easiest way to run the API server without installing Python dependencies locally. You still need Ollama running on your host machine.
+
+```bash
+# Clone the repository
+git clone https://github.com/FamilOrujov/hybrid-rag-kb.git
+cd hybrid-rag-kb
+
+# Start the API server
+docker compose up -d
+
+# Check logs
+docker compose logs -f
+
+# Stop the server
+docker compose down
+```
+
+The Docker container connects to Ollama running on your host machine. Make sure Ollama is running before starting the container:
+
+```bash
+ollama serve
+```
+
+You can customize the Ollama connection and models using environment variables:
+
+```bash
+# For Linux, if host.docker.internal doesn't work
+OLLAMA_BASE_URL=http://172.17.0.1:11434 docker compose up -d
+
+# Use different models
+OLLAMA_CHAT_MODEL=llama3.2:3b OLLAMA_EMBED_MODEL=nomic-embed-text docker compose up -d
+```
+
+Data is persisted in the `./data` directory, so your knowledge base survives container restarts.
+
+### 4.4 Pull Required Ollama Models
 
 The project uses two models by default. Pull them before running:
 

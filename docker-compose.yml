@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hybrid-rag-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist database and index across container restarts
+      - ./data:/app/data
+    environment:
+      # Connect to Ollama running on host machine
+      # Linux: use host.docker.internal or 172.17.0.1
+      # macOS/Windows: host.docker.internal works out of the box
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL:-gemma3:1b}
+      - OLLAMA_EMBED_MODEL=${OLLAMA_EMBED_MODEL:-mxbai-embed-large}
+      - USE_FAISS_GPU=false
+    extra_hosts:
+      # Required for Linux to resolve host.docker.internal
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  data:
