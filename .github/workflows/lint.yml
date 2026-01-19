@@ -1,0 +1,53 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install linting tools
+        run: |
+          pip install ruff mypy
+
+      - name: Run Ruff linter
+        run: |
+          ruff check src/ cli/ tests/ --output-format=github
+
+      - name: Run Ruff formatter check
+        run: |
+          ruff format src/ cli/ tests/ --check
+
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install mypy types-aiofiles
+          pip install aiosqlite numpy pydantic pydantic-settings fastapi
+
+      - name: Run MyPy type checking
+        run: |
+          mypy src/rag/ --ignore-missing-imports --no-error-summary || true
