@@ -12,8 +12,6 @@
 <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-FTS5-044A64?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"></a>
 <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-2.12+-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic"></a>
 <a href="https://rich.readthedocs.io/"><img src="https://img.shields.io/badge/Rich-CLI-4B8BBE?style=for-the-badge" alt="Rich"></a>
-<a href="https://developer.nvidia.com/cuda-toolkit"><img src="https://img.shields.io/badge/CUDA-12-76B900?style=for-the-badge&logo=nvidia&logoColor=white" alt="CUDA"></a>
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-9D4EDD?style=for-the-badge" alt="License"></a>
 
 ![Hybrid RAG Demo](assets/hybrid_rag_main.gif)
 
