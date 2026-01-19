@@ -2,12 +2,22 @@
 
 ![Hybrid RAG Knowledge Base](assets/hybrid_rag_kb.png)
 
-**BM25 + FAISS Hybrid Retrieval | Local LLM | Citation Enforcement | GPU Accelerated**
+**Hybrid Retrieval Augmented Generation with BM25 + FAISS Fusion and Citation Enforcement**
 
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-FF6B35?style=flat-square)](https://ollama.ai/)
-[![License](https://img.shields.io/badge/License-MIT-9D4EDD?style=flat-square)](https://opensource.org/licenses/MIT)
+<a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
+<a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.128+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+<a href="https://ollama.ai/"><img src="https://img.shields.io/badge/Ollama-Local_LLM-FF6B35?style=for-the-badge" alt="Ollama"></a>
+<a href="https://www.langchain.com/"><img src="https://img.shields.io/badge/LangChain-1.2+-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain"></a>
+<a href="https://github.com/facebookresearch/faiss"><img src="https://img.shields.io/badge/FAISS-GPU_Ready-00ADD8?style=for-the-badge" alt="FAISS"></a>
+<a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-FTS5-044A64?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"></a>
+<a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-2.12+-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic"></a>
+<a href="https://rich.readthedocs.io/"><img src="https://img.shields.io/badge/Rich-CLI-4B8BBE?style=for-the-badge" alt="Rich"></a>
+<a href="https://developer.nvidia.com/cuda-toolkit"><img src="https://img.shields.io/badge/CUDA-12-76B900?style=for-the-badge&logo=nvidia&logoColor=white" alt="CUDA"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-9D4EDD?style=for-the-badge" alt="License"></a>
+
+![Hybrid RAG Demo](assets/hybrid_rag_main.gif)
+
+*Hybrid RAG is a local knowledge base system I built to explore how modern retrieval pipelines work under the hood. It combines BM25 keyword search with FAISS vector similarity, fuses them using Reciprocal Rank Fusion, and generates answers through a local LLM with strict citation enforcement. Everything runs on your machine, no API keys required, no data leaving your system.*
 
 </div>
 
@@ -49,6 +59,7 @@
 7. [Configuration](#7-configuration)
    - 7.1 [Environment Variables](#71-environment-variables)
    - 7.2 [CPU Only Setup](#72-cpu-only-setup)
+   - 7.3 [GPU Memory Management](#73-gpu-memory-management)
 8. [API Reference](#8-api-reference)
    - 8.1 [Available Endpoints](#81-available-endpoints)
    - 8.2 [Interactive Documentation](#82-interactive-documentation)
@@ -217,11 +228,32 @@ The server runs in the background, so you can continue using the CLI. Server log
 
 ### 5.3 Ingest Documents
 
-Upload documents to build your knowledge base:
+Upload documents to build your knowledge base. You can pass file paths directly, use relative paths from your current directory, or point to an entire folder for batch ingestion.
+
+<div align="center">
+
+![Ingest Documents](assets/hrag_ingest.gif)
+
+</div>
+
+To ingest a single file, provide the path relative to your current working directory or use an absolute path:
 
 ```
-/ingest /path/to/document.pdf
+/ingest ./my_document.pdf
+/ingest /home/user/documents/research_paper.pdf
+```
+
+To ingest all supported files in a directory:
+
+```
+/ingest ./documents/
 /ingest /path/to/folder/
+```
+
+You can also use glob patterns to match specific files:
+
+```
+/ingest ./papers/*.pdf
 ```
 
 Supported formats: PDF, TXT, MD, JSON, CSV
@@ -396,6 +428,83 @@ If you don't have a GPU, modify `pyproject.toml` and `requirements.txt`:
 1. Replace `faiss-gpu-cu12==1.8.0.2` with `faiss-cpu`
 2. Remove the `nvidia-*` packages
 3. Set `USE_FAISS_GPU=false` in your `.env` file
+
+### 7.3 GPU Memory Management
+
+When running on systems with limited GPU memory, or when other GPU intensive applications are active, you may encounter CUDA out of memory errors or timeouts. This is particularly common when screen recording software like OBS is running, as these applications consume significant GPU resources.
+
+**Checking GPU Memory Usage**
+
+You can monitor GPU memory consumption using `nvidia-smi`:
+
+```bash
+nvidia-smi
+```
+
+This will show you the current memory usage and which processes are consuming GPU resources. OBS Studio, for example, can easily consume 1.5GB or more of VRAM during screen recording.
+
+**Symptoms of GPU Memory Pressure**
+
+When GPU memory is exhausted, you may experience several issues. Ollama will fall back to CPU inference, which is significantly slower and may cause request timeouts. FAISS GPU operations will fail, and the system will fall back to CPU based vector search. You may see HTTP 500 errors during document ingestion or queries.
+
+**Configuring for Limited GPU Memory**
+
+If you are running other GPU intensive applications, disable FAISS GPU to reduce memory pressure:
+
+```bash
+# In your .env file
+USE_FAISS_GPU=false
+```
+
+The system includes automatic fallback, so if GPU copy fails due to memory exhaustion, it will gracefully fall back to CPU based vector search without crashing.
+
+**Stabilizing Performance After Closing GPU Applications**
+
+When you close GPU intensive applications like OBS, you can reclaim GPU memory for Ollama and FAISS. The steps are straightforward:
+
+1. Close or pause the GPU intensive application
+2. Stop any loaded Ollama models to free GPU memory:
+
+```bash
+ollama stop <model_name>
+```
+
+3. Restart the Ollama service or run a model to reload it with GPU acceleration:
+
+```bash
+ollama run gemma3:1b
+```
+
+4. Verify GPU is being used by checking the PROCESSOR column:
+
+```bash
+ollama ps
+# Should show "GPU" or a CPU/GPU split, not "100% CPU"
+```
+
+5. If you want FAISS GPU acceleration, enable it in your configuration and restart the server:
+
+```bash
+# In .env
+USE_FAISS_GPU=true
+
+# Then restart
+/restart
+```
+
+**Recommended Configuration for 3GB to 4GB GPUs**
+
+For GPUs with limited VRAM, consider using smaller models that fit better in memory:
+
+```bash
+# Smaller, faster chat model
+ollama pull gemma3:1b
+
+# Compact embedding model
+ollama pull nomic-embed-text
+```
+
+When running alongside screen recording or streaming software, disable FAISS GPU and let Ollama manage GPU memory allocation dynamically. The system will function correctly on CPU, though response times will be longer.
 
 ---
 
