@@ -65,7 +65,7 @@ class TestRRFFuse:
     def test_fused_score_calculation(self):
         """Fused score should follow RRF formula."""
         bm25 = [make_result(1)]  # rank 1
-        vec = [make_result(1)]   # rank 1
+        vec = [make_result(1)]  # rank 1
 
         result = rrf_fuse(bm25, vec, rrf_k=60, w_bm25=1.0, w_vec=1.0)
 
@@ -84,7 +84,7 @@ class TestRRFFuse:
     def test_weights_affect_ranking(self):
         """Different weights should affect final ranking."""
         bm25 = [make_result(1)]  # Only in BM25
-        vec = [make_result(2)]   # Only in vector
+        vec = [make_result(2)]  # Only in vector
 
         # Heavy BM25 weight
         result_bm25_heavy = rrf_fuse(bm25, vec, w_bm25=10.0, w_vec=1.0)

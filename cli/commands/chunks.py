@@ -86,20 +86,24 @@ class ChunksCommand(BaseCommand):
                 meta_text.append(str(value), style="text")
                 meta_text.append("\n")
 
-        console.print(Panel(
-            meta_text,
-            title=f"[primary]Chunk #{data.get('chunk_id', '?')}[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                meta_text,
+                title=f"[primary]Chunk #{data.get('chunk_id', '?')}[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         # Text content panel
         text = data.get("text", "")
         console.print()
-        console.print(Panel(
-            Text(text, style="text"),
-            title="[tertiary]Content[/tertiary]",
-            subtitle=f"[muted]{len(text)} characters[/muted]",
-            border_style="tertiary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                Text(text, style="text"),
+                title="[tertiary]Content[/tertiary]",
+                subtitle=f"[muted]{len(text)} characters[/muted]",
+                border_style="tertiary",
+                padding=(1, 2),
+            )
+        )

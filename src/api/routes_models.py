@@ -20,6 +20,7 @@ router = APIRouter()
 
 class ModelUpdateRequest(BaseModel):
     """Request to update active models."""
+
     chat_model: str | None = None
     embed_model: str | None = None
 
@@ -59,8 +60,12 @@ def _save_persistent_config(chat_model: str | None = None, embed_model: str | No
     existing = _load_persistent_config()
 
     new_config = {
-        "chat_model": chat_model if chat_model is not None else existing.get("chat_model") or settings.ollama_chat_model,
-        "embed_model": embed_model if embed_model is not None else existing.get("embed_model") or settings.ollama_embed_model,
+        "chat_model": chat_model
+        if chat_model is not None
+        else existing.get("chat_model") or settings.ollama_chat_model,
+        "embed_model": embed_model
+        if embed_model is not None
+        else existing.get("embed_model") or settings.ollama_embed_model,
     }
 
     try:
@@ -214,6 +219,7 @@ async def update_models(req: ModelUpdateRequest) -> dict[str, Any]:
 
             # Update ALL modules that use the embedder (including ingest!)
             from src.api import routes_ingest
+
             routes_chat._embedder = new_embedder
             routes_debug_citations._embedder = new_embedder
             routes_debug._embedder = new_embedder
@@ -225,10 +231,12 @@ async def update_models(req: ModelUpdateRequest) -> dict[str, Any]:
             if old_faiss_dim is None:
                 # Try to read dimension from existing index on disk
                 from pathlib import Path
+
                 index_path = Path(settings.faiss_dir) / "index.faiss"
                 if index_path.exists():
                     try:
                         import faiss
+
                         idx = faiss.read_index(str(index_path))
                         old_faiss_dim = idx.d
                     except Exception:

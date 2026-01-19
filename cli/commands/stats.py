@@ -32,6 +32,7 @@ class StatsCommand(BaseCommand):
 
         if as_json:
             import json
+
             console.print_json(json.dumps(data, indent=2))
         else:
             console.print()
@@ -55,7 +56,11 @@ class StatsCommand(BaseCommand):
             console.print(f"  [success]✔ Synced:[/success] {chunks} chunks = {vectors} vectors")
         elif chunks > vectors:
             diff = chunks - vectors
-            console.print(f"  [warning]⚠ Out of sync:[/warning] {diff} chunks missing from FAISS index")
+            console.print(
+                f"  [warning]⚠ Out of sync:[/warning] {diff} chunks missing from FAISS index"
+            )
         else:
             diff = vectors - chunks
-            console.print(f"  [warning]⚠ Out of sync:[/warning] {diff} orphan vectors in FAISS index")
+            console.print(
+                f"  [warning]⚠ Out of sync:[/warning] {diff} orphan vectors in FAISS index"
+            )

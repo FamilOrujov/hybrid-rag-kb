@@ -7,7 +7,7 @@ def rrf_fuse(
     bm25_results: list[dict[str, Any]],
     vec_results: list[dict[str, Any]],
     *,
-    rrf_k:int = 60,
+    rrf_k: int = 60,
     w_bm25: float = 1.0,
     w_vec: float = 1.0,
     top_k: int = 8,
@@ -55,8 +55,6 @@ def rrf_fuse(
             fused[cid]["vec_score"] = item.get("vec_score")
         fused[cid]["fused_score"] += add
 
-
     merged = list(fused.values())
     merged.sort(key=lambda x: x["fused_score"], reverse=True)
     return merged[:top_k]
-

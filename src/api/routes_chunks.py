@@ -11,7 +11,6 @@ from src.db.sqlite import connect
 router = APIRouter()
 
 
-
 @router.get("/chunks/{chunk_id}")
 async def get_chunk(chunk_id: int) -> dict[str, Any]:
     """
@@ -54,4 +53,3 @@ async def get_chunk(chunk_id: int) -> dict[str, Any]:
         "metadata": metadata,
         "text": row["text"],
     }
-

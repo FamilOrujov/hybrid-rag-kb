@@ -146,12 +146,14 @@ class HelpCommand(BaseCommand):
                 cmd["description"],
             )
 
-        console.print(Panel(
-            table,
-            title="[primary]Available Commands[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                table,
+                title="[primary]Available Commands[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         # Tips
         console.print()
@@ -205,11 +207,13 @@ class HelpCommand(BaseCommand):
         text.append("Aliases:\n", style="muted")
         text.append(f"  {cmd['aliases']}", style="tertiary")
 
-        console.print(Panel(
-            text,
-            title=f"[primary]📖 {cmd['name']}[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                text,
+                title=f"[primary]📖 {cmd['name']}[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         return True

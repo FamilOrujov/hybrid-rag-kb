@@ -54,7 +54,9 @@ class ResetCommand(BaseCommand):
             files = list(raw_dir.glob("*"))
             if files:
                 total_size = sum(f.stat().st_size for f in files if f.is_file())
-                items_to_delete.append(("Raw Files", raw_dir, f"{len(files)} files, {self._format_size(total_size)}"))
+                items_to_delete.append(
+                    ("Raw Files", raw_dir, f"{len(files)} files, {self._format_size(total_size)}")
+                )
 
         if not items_to_delete:
             print_warning("Nothing to delete. Database and index are already clean.")
@@ -112,8 +114,12 @@ class ResetCommand(BaseCommand):
         else:
             print_success(f"Deleted {deleted} item(s). Database is now clean.")
             console.print()
-            console.print("  [warning]Important:[/warning] You must restart the server to reinitialize the database.")
-            console.print("  [muted]Run:[/muted] [command]/restart[/command] [muted]before ingesting new files.[/muted]")
+            console.print(
+                "  [warning]Important:[/warning] You must restart the server to reinitialize the database."
+            )
+            console.print(
+                "  [muted]Run:[/muted] [command]/restart[/command] [muted]before ingesting new files.[/muted]"
+            )
 
         return len(errors) == 0
 

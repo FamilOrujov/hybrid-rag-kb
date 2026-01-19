@@ -149,6 +149,7 @@ class DoctorCommand(BaseCommand):
         """Check if Ollama server is running."""
         try:
             import httpx
+
             response = httpx.get("http://localhost:11434/api/tags", timeout=5)
             if response.status_code == 200:
                 return "ok", "Ollama server running", "http://localhost:11434"
@@ -163,6 +164,7 @@ class DoctorCommand(BaseCommand):
         """Check if required Ollama models are available."""
         try:
             import httpx
+
             response = httpx.get("http://localhost:11434/api/tags", timeout=5)
             if response.status_code != 200:
                 return "warn", "Cannot check models", "Ollama not responding"
@@ -185,7 +187,11 @@ class DoctorCommand(BaseCommand):
             if not missing:
                 return "ok", f"{len(found)} models available", ", ".join(found)
             else:
-                return "warn", f"Missing models: {', '.join(missing)}", f"Run: ollama pull {missing[0]}"
+                return (
+                    "warn",
+                    f"Missing models: {', '.join(missing)}",
+                    f"Run: ollama pull {missing[0]}",
+                )
         except Exception as e:
             return "warn", "Cannot check models", str(e)
 
@@ -198,6 +204,7 @@ class DoctorCommand(BaseCommand):
 
         try:
             import sqlite3
+
             conn = sqlite3.connect(str(db_path))
             cursor = conn.cursor()
 
@@ -226,9 +233,10 @@ class DoctorCommand(BaseCommand):
 
         try:
             import faiss
+
             index = faiss.read_index(str(index_path))
             ntotal = index.ntotal
-            d = getattr(index, 'd', None)
+            d = getattr(index, "d", None)
 
             details = f"Vectors: {ntotal}"
             if d:
@@ -252,7 +260,7 @@ class DoctorCommand(BaseCommand):
         try:
             import faiss
 
-            if hasattr(faiss, 'get_num_gpus'):
+            if hasattr(faiss, "get_num_gpus"):
                 num_gpus = faiss.get_num_gpus()
                 if num_gpus > 0:
                     return "ok", f"{num_gpus} GPU(s) available", "FAISS GPU acceleration enabled"
@@ -303,13 +311,17 @@ class DoctorCommand(BaseCommand):
             text.append("● ", style="doctor.fail")
             text.append(f"{results['fail']} failed", style="doctor.fail")
 
-        console.print(Panel(
-            Align.center(text),
-            border_style=border_style,
-            padding=(1, 4),
-        ))
+        console.print(
+            Panel(
+                Align.center(text),
+                border_style=border_style,
+                padding=(1, 4),
+            )
+        )
 
         # Suggestions
         if results["fail"] > 0 or results["warn"] > 0:
             console.print()
-            console.print("  [muted]Run [/muted][command]/doctor --verbose[/command][muted] for more details[/muted]")
+            console.print(
+                "  [muted]Run [/muted][command]/doctor --verbose[/command][muted] for more details[/muted]"
+            )

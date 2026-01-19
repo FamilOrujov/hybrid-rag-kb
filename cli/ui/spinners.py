@@ -63,6 +63,7 @@ def create_spinner(
         frame_idx = 0
 
         with Live(console=console, refresh_per_second=12, transient=True) as live:
+
             def update_display():
                 nonlocal frame_idx
                 frame = LOADING_FRAMES[frame_idx % len(LOADING_FRAMES)]
@@ -78,6 +79,7 @@ def create_spinner(
 
             # Create a simple context that updates the display
             import threading
+
             stop_event = threading.Event()
 
             def animate():
@@ -272,7 +274,7 @@ class ServerOutputDisplay:
 
         # Keep only last N lines
         if len(self.lines) > self.max_lines:
-            self.lines = self.lines[-self.max_lines:]
+            self.lines = self.lines[-self.max_lines :]
 
         if self.live:
             self.live.update(self._render())

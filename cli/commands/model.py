@@ -79,12 +79,14 @@ class ModelCommand(BaseCommand):
         current_text.append("Ollama URL:  ", style="muted")
         current_text.append(current.get("ollama_base_url", "N/A"), style="tertiary")
 
-        console.print(Panel(
-            current_text,
-            title="[primary]Current Models[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                current_text,
+                title="[primary]Current Models[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         if error:
             console.print()
@@ -257,7 +259,9 @@ class ModelCommand(BaseCommand):
             console.print(embed_table)
 
         console.print()
-        console.print("[muted]Use [command]/model set[/command] to change models interactively[/muted]")
+        console.print(
+            "[muted]Use [command]/model set[/command] to change models interactively[/muted]"
+        )
 
         return True
 
@@ -301,13 +305,15 @@ class ModelCommand(BaseCommand):
             pass
 
         console.print()
-        console.print(Panel(
-            f"[muted]Current chat model:[/muted] [primary]{current_chat}[/primary]\n"
-            f"[muted]Current embed model:[/muted] [secondary]{current_embed}[/secondary]",
-            title="[primary]Model Selection[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                f"[muted]Current chat model:[/muted] [primary]{current_chat}[/primary]\n"
+                f"[muted]Current embed model:[/muted] [secondary]{current_embed}[/secondary]",
+                title="[primary]Model Selection[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         # Select chat model
         console.print()
@@ -391,13 +397,17 @@ class ModelCommand(BaseCommand):
         if chat_model:
             console.print(f"[muted]Loading chat model:[/muted] [primary]{chat_model}[/primary]")
         if embed_model:
-            console.print(f"[muted]Loading embed model:[/muted] [secondary]{embed_model}[/secondary]")
+            console.print(
+                f"[muted]Loading embed model:[/muted] [secondary]{embed_model}[/secondary]"
+            )
         console.print("[muted]This may take a moment for large models...[/muted]")
         console.print()
 
         # Use longer timeout for model operations
         try:
-            with create_spinner("Updating models (this may take a while for large models)...", style="processing"):
+            with create_spinner(
+                "Updating models (this may take a while for large models)...", style="processing"
+            ):
                 with httpx.Client(timeout=MODEL_TIMEOUT) as client:
                     response = client.post(
                         f"{self.api.base_url}/models",
@@ -453,17 +463,19 @@ class ModelCommand(BaseCommand):
             dimension_warning = embed_change.get("dimension_warning")
             if dimension_warning:
                 console.print()
-                console.print(Panel(
-                    f"[error bold]⚠ Dimension Mismatch Detected![/error bold]\n\n"
-                    f"[warning]{dimension_warning}[/warning]\n\n"
-                    f"[text]To fix this, run:[/text]\n"
-                    f"  [command]/reset[/command]   [muted]Clear database and FAISS index[/muted]\n"
-                    f"  [command]/restart[/command] [muted]Reinitialize server[/muted]\n"
-                    f"  [command]/ingest[/command]  [muted]Re-embed documents with new model[/muted]",
-                    title="[error]Action Required[/error]",
-                    border_style="error",
-                    padding=(1, 2),
-                ))
+                console.print(
+                    Panel(
+                        f"[error bold]⚠ Dimension Mismatch Detected![/error bold]\n\n"
+                        f"[warning]{dimension_warning}[/warning]\n\n"
+                        f"[text]To fix this, run:[/text]\n"
+                        f"  [command]/reset[/command]   [muted]Clear database and FAISS index[/muted]\n"
+                        f"  [command]/restart[/command] [muted]Reinitialize server[/muted]\n"
+                        f"  [command]/ingest[/command]  [muted]Re-embed documents with new model[/muted]",
+                        title="[error]Action Required[/error]",
+                        border_style="error",
+                        padding=(1, 2),
+                    )
+                )
         else:
             console.print("[muted]No changes were made.[/muted]")
 
@@ -488,39 +500,43 @@ class ModelCommand(BaseCommand):
         current = data.get("current", {})
 
         console.print()
-        console.print(Panel(
-            f"[muted]Chat Model:[/muted]   [primary.bold]{current.get('chat_model', 'N/A')}[/primary.bold]\n"
-            f"[muted]Embed Model:[/muted]  [secondary.bold]{current.get('embed_model', 'N/A')}[/secondary.bold]\n"
-            f"[muted]Ollama URL:[/muted]   [tertiary]{current.get('ollama_base_url', 'N/A')}[/tertiary]",
-            title="[primary]Current Configuration[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                f"[muted]Chat Model:[/muted]   [primary.bold]{current.get('chat_model', 'N/A')}[/primary.bold]\n"
+                f"[muted]Embed Model:[/muted]  [secondary.bold]{current.get('embed_model', 'N/A')}[/secondary.bold]\n"
+                f"[muted]Ollama URL:[/muted]   [tertiary]{current.get('ollama_base_url', 'N/A')}[/tertiary]",
+                title="[primary]Current Configuration[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         return True
 
     def _show_model_help(self) -> None:
         """Show model command help."""
         console.print()
-        console.print(Panel(
-            Text.from_markup(
-                "[primary]Model Management Commands[/primary]\n\n"
-                "[command]/model[/command]\n"
-                "  Show current models and available options\n\n"
-                "[command]/model list[/command]\n"
-                "  List all models from Ollama\n\n"
-                "[command]/model set[/command]\n"
-                "  Interactive model selection\n\n"
-                "[command]/model --chat[/command] [warning]MODEL[/warning]\n"
-                "  Set the chat/LLM model\n\n"
-                "[command]/model --embed[/command] [warning]MODEL[/warning]\n"
-                "  Set the embedding model\n\n"
-                "[muted]Examples:[/muted]\n"
-                "  /model --chat llama3.2:3b\n"
-                "  /model --embed nomic-embed-text\n"
-                "  /model --chat gemma3:1b --embed mxbai-embed-large"
-            ),
-            title="[primary]Model Commands[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                Text.from_markup(
+                    "[primary]Model Management Commands[/primary]\n\n"
+                    "[command]/model[/command]\n"
+                    "  Show current models and available options\n\n"
+                    "[command]/model list[/command]\n"
+                    "  List all models from Ollama\n\n"
+                    "[command]/model set[/command]\n"
+                    "  Interactive model selection\n\n"
+                    "[command]/model --chat[/command] [warning]MODEL[/warning]\n"
+                    "  Set the chat/LLM model\n\n"
+                    "[command]/model --embed[/command] [warning]MODEL[/warning]\n"
+                    "  Set the embedding model\n\n"
+                    "[muted]Examples:[/muted]\n"
+                    "  /model --chat llama3.2:3b\n"
+                    "  /model --embed nomic-embed-text\n"
+                    "  /model --chat gemma3:1b --embed mxbai-embed-large"
+                ),
+                title="[primary]Model Commands[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )

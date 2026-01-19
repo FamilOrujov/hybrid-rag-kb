@@ -23,4 +23,3 @@ async def init_db(db_path: str, schema_path: str) -> None:
     async with connect(db_path) as conn:
         await conn.executescript(schema_sql)
         await conn.commit()
-

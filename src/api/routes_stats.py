@@ -60,7 +60,6 @@ async def stats() -> dict[str, Any]:
     except Exception as e:
         sqlite_info["errors"] = {"connect": f"{type(e).__name__}: {e}"}
 
-
     # FAISS stats (from disk)
     faiss_dir = Path(settings.faiss_dir)
     index_path = faiss_dir / "index.faiss"
@@ -78,7 +77,6 @@ async def stats() -> dict[str, Any]:
         "is_trained": None,
         "error": None,
     }
-
 
     # FAISS GPU capability (availability, not "currently loaded index")
     gpu_info: dict[str, Any] = {
@@ -104,7 +102,9 @@ async def stats() -> dict[str, Any]:
         if exists:
             idx = faiss.read_index(str(index_path))
             faiss_info["ntotal"] = int(idx.ntotal)  # number of vectors indexed
-            faiss_info["d"] = int(getattr(idx, "d", 0)) if getattr(idx, "d", None) is not None else None
+            faiss_info["d"] = (
+                int(getattr(idx, "d", 0)) if getattr(idx, "d", None) is not None else None
+            )
             faiss_info["index_type"] = type(idx).__name__
             faiss_info["is_trained"] = bool(getattr(idx, "is_trained", True))
     except Exception as e:
@@ -112,7 +112,6 @@ async def stats() -> dict[str, Any]:
         faiss_info["ntotal"] = None
         faiss_info["error"] = f"{type(e).__name__}: {e}"
         gpu_info["error"] = f"{type(e).__name__}: {e}"
-
 
     # Reproducibility info (use runtime model state, not settings)
     current_models = get_current_models()
@@ -132,4 +131,3 @@ async def stats() -> dict[str, Any]:
         "gpu": gpu_info,
         "repro": repro,
     }
-

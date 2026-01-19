@@ -16,4 +16,3 @@ router.include_router(chunks_router)
 router.include_router(debug_citations_router)
 router.include_router(stats_router)
 router.include_router(models_router)
-

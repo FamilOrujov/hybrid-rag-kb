@@ -93,4 +93,8 @@ async def ingest_files(
         ingested_chunks += len(chunks)
         ingested_vectors += len(chunk_ids)
 
-    return {"documents_added": ingested_docs, "chunks_added": ingested_chunks, "vectors_added": ingested_vectors}
+    return {
+        "documents_added": ingested_docs,
+        "chunks_added": ingested_chunks,
+        "vectors_added": ingested_vectors,
+    }

@@ -43,26 +43,28 @@ class DebugCommand(BaseCommand):
     def _show_debug_help(self) -> None:
         """Show debug command help."""
         console.print()
-        console.print(Panel(
-            Text.from_markup(
-                "[primary]Debug Commands[/primary]\n\n"
-                "[command]/debug retrieval[/command] [muted]<query>[/muted]\n"
-                "  Deep analysis of BM25, vector, and RRF fusion\n\n"
-                "[command]/debug citations[/command] [muted]<query>[/muted]\n"
-                "  Run query and validate citation accuracy\n\n"
-                "[muted]Options:[/muted]\n"
-                "  --bm25_k N      BM25 candidates (default: 20)\n"
-                "  --vec_k N       Vector candidates (default: 20)\n"
-                "  --top_k N       Final fused results (default: 8)\n"
-                "  --bm25_mode M   Query mode: heuristic|raw (default: heuristic)\n"
-                "  --rrf_k N       RRF constant (default: 60)\n"
-                "  --w_bm25 F      BM25 weight (default: 1.0)\n"
-                "  --w_vec F       Vector weight (default: 1.0)"
-            ),
-            title="[primary]Debug Commands[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                Text.from_markup(
+                    "[primary]Debug Commands[/primary]\n\n"
+                    "[command]/debug retrieval[/command] [muted]<query>[/muted]\n"
+                    "  Deep analysis of BM25, vector, and RRF fusion\n\n"
+                    "[command]/debug citations[/command] [muted]<query>[/muted]\n"
+                    "  Run query and validate citation accuracy\n\n"
+                    "[muted]Options:[/muted]\n"
+                    "  --bm25_k N      BM25 candidates (default: 20)\n"
+                    "  --vec_k N       Vector candidates (default: 20)\n"
+                    "  --top_k N       Final fused results (default: 8)\n"
+                    "  --bm25_mode M   Query mode: heuristic|raw (default: heuristic)\n"
+                    "  --rrf_k N       RRF constant (default: 60)\n"
+                    "  --w_bm25 F      BM25 weight (default: 1.0)\n"
+                    "  --w_vec F       Vector weight (default: 1.0)"
+                ),
+                title="[primary]Debug Commands[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
     def _debug_retrieval(self, args: list[str], flags: dict) -> bool:
         """Debug retrieval pipeline with detailed analysis."""
@@ -91,6 +93,7 @@ class DebugCommand(BaseCommand):
         with create_spinner("Running deep retrieval analysis...", style="processing"):
             try:
                 import httpx
+
                 with httpx.Client(timeout=120.0) as client:
                     response = client.post(
                         f"{self.api.base_url}/debug/retrieval",
@@ -104,7 +107,7 @@ class DebugCommand(BaseCommand):
                             "rrf_k": rrf_k,
                             "w_bm25": w_bm25,
                             "w_vec": w_vec,
-                        }
+                        },
                     )
                     if response.status_code != 200:
                         print_error(f"API error: {response.status_code}")
@@ -148,12 +151,14 @@ class DebugCommand(BaseCommand):
 
     def _show_query_analysis(self, analysis: dict) -> None:
         """Display query tokenization and BM25 query construction."""
-        console.print(Panel(
-            self._build_query_analysis_content(analysis),
-            title="[primary]Query Analysis[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                self._build_query_analysis_content(analysis),
+                title="[primary]Query Analysis[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
         console.print()
 
     def _build_query_analysis_content(self, analysis: dict) -> Text:
@@ -162,14 +167,17 @@ class DebugCommand(BaseCommand):
 
         # Original query
         text.append("Original Query: ", style="muted")
-        text.append(f"\"{analysis.get('original_query', '')}\"", style="primary.bold")
+        text.append(f'"{analysis.get("original_query", "")}"', style="primary.bold")
         text.append("\n")
 
         # Original tokens
         text.append("Original Tokens: ", style="muted")
         orig_tokens = analysis.get("original_tokens", [])
         text.append(f"{len(orig_tokens)} tokens ", style="number")
-        text.append(f"[{', '.join(orig_tokens[:10])}{'...' if len(orig_tokens) > 10 else ''}]", style="tertiary")
+        text.append(
+            f"[{', '.join(orig_tokens[:10])}{'...' if len(orig_tokens) > 10 else ''}]",
+            style="tertiary",
+        )
         text.append("\n\n")
 
         # BM25 processing
@@ -180,7 +188,7 @@ class DebugCommand(BaseCommand):
         text.append("BM25 Query: ", style="muted")
         bm25_query = analysis.get("bm25_query", "")
         if bm25_query:
-            text.append(f"\"{bm25_query}\"", style="success bold")
+            text.append(f'"{bm25_query}"', style="success bold")
         else:
             text.append("(empty, no matching tokens)", style="warning")
         text.append("\n")
@@ -210,36 +218,49 @@ class DebugCommand(BaseCommand):
         table.add_column("Value", style="number", width=15)
 
         table.add_row(
-            "Total Documents", str(db_stats.get("total_documents", "?")),
-            "Total Chunks", str(db_stats.get("total_chunks", "?")),
+            "Total Documents",
+            str(db_stats.get("total_documents", "?")),
+            "Total Chunks",
+            str(db_stats.get("total_chunks", "?")),
         )
         table.add_row(
-            "FTS5 Entries", str(db_stats.get("total_fts_entries", "?")),
-            "FAISS Vectors", str(debug.get("faiss_ntotal", "?")),
+            "FTS5 Entries",
+            str(db_stats.get("total_fts_entries", "?")),
+            "FAISS Vectors",
+            str(debug.get("faiss_ntotal", "?")),
         )
         table.add_row(
-            "Query Embed Dim", str(debug.get("query_embedding_dim", "?")),
-            "FAISS Index Dim", str(debug.get("faiss_index_dim", "?")),
+            "Query Embed Dim",
+            str(debug.get("query_embedding_dim", "?")),
+            "FAISS Index Dim",
+            str(debug.get("faiss_index_dim", "?")),
         )
 
-        console.print(Panel(
-            table,
-            title="[tertiary]Database Context[/tertiary]",
-            border_style="tertiary",
-            padding=(0, 1),
-        ))
+        console.print(
+            Panel(
+                table,
+                title="[tertiary]Database Context[/tertiary]",
+                border_style="tertiary",
+                padding=(0, 1),
+            )
+        )
         console.print()
 
     def _show_bm25_results(self, results: list) -> None:
         """Display BM25 sparse retrieval results."""
         if not results:
-            console.print(Panel(
-                Text("No BM25 results. The query tokens may not match any indexed text.\n"
-                     "Try using --bm25_mode raw to include all tokens.", style="warning"),
-                title="[secondary]BM25 Sparse Retrieval (0 hits)[/secondary]",
-                border_style="secondary",
-                padding=(1, 2),
-            ))
+            console.print(
+                Panel(
+                    Text(
+                        "No BM25 results. The query tokens may not match any indexed text.\n"
+                        "Try using --bm25_mode raw to include all tokens.",
+                        style="warning",
+                    ),
+                    title="[secondary]BM25 Sparse Retrieval (0 hits)[/secondary]",
+                    border_style="secondary",
+                    padding=(1, 2),
+                )
+            )
             console.print()
             return
 
@@ -273,12 +294,14 @@ class DebugCommand(BaseCommand):
         if len(results) > 10:
             table.add_row("...", f"+{len(results) - 10}", "", "", "", "")
 
-        console.print(Panel(
-            table,
-            title=f"[secondary]BM25 Sparse Retrieval ({len(results)} hits)[/secondary]",
-            border_style="secondary",
-            padding=(0, 1),
-        ))
+        console.print(
+            Panel(
+                table,
+                title=f"[secondary]BM25 Sparse Retrieval ({len(results)} hits)[/secondary]",
+                border_style="secondary",
+                padding=(0, 1),
+            )
+        )
         console.print()
 
     def _show_vector_error(self, error: str, debug: dict) -> None:
@@ -308,23 +331,27 @@ class DebugCommand(BaseCommand):
         text.append("/ingest", style="command")
         text.append(" to re-embed documents with the new model\n", style="text")
 
-        console.print(Panel(
-            text,
-            title="[error]Vector Search Error[/error]",
-            border_style="error",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                text,
+                title="[error]Vector Search Error[/error]",
+                border_style="error",
+                padding=(1, 2),
+            )
+        )
         console.print()
 
     def _show_vector_results(self, results: list) -> None:
         """Display vector dense retrieval results."""
         if not results:
-            console.print(Panel(
-                Text("No vector results. FAISS index may be empty.", style="warning"),
-                title="[tertiary]Vector Dense Retrieval (0 hits)[/tertiary]",
-                border_style="tertiary",
-                padding=(1, 2),
-            ))
+            console.print(
+                Panel(
+                    Text("No vector results. FAISS index may be empty.", style="warning"),
+                    title="[tertiary]Vector Dense Retrieval (0 hits)[/tertiary]",
+                    border_style="tertiary",
+                    padding=(1, 2),
+                )
+            )
             console.print()
             return
 
@@ -358,12 +385,14 @@ class DebugCommand(BaseCommand):
         if len(results) > 10:
             table.add_row("...", f"+{len(results) - 10}", "", "", "", "")
 
-        console.print(Panel(
-            table,
-            title=f"[tertiary]Vector Dense Retrieval ({len(results)} hits)[/tertiary]",
-            border_style="tertiary",
-            padding=(0, 1),
-        ))
+        console.print(
+            Panel(
+                table,
+                title=f"[tertiary]Vector Dense Retrieval ({len(results)} hits)[/tertiary]",
+                border_style="tertiary",
+                padding=(0, 1),
+            )
+        )
         console.print()
 
     def _show_overlap_analysis(self, overlap: dict) -> None:
@@ -392,7 +421,9 @@ class DebugCommand(BaseCommand):
         if overlap_count == 0 and bm25_count > 0 and vec_count > 0:
             text.append("Analysis: ", style="muted")
             text.append("No overlap between BM25 and vector results.\n", style="warning")
-            text.append("This suggests the query has different semantic vs lexical matches.", style="muted")
+            text.append(
+                "This suggests the query has different semantic vs lexical matches.", style="muted"
+            )
         elif overlap_pct > 50:
             text.append("Analysis: ", style="muted")
             text.append("High overlap ", style="success")
@@ -400,11 +431,16 @@ class DebugCommand(BaseCommand):
         elif overlap_pct > 20:
             text.append("Analysis: ", style="muted")
             text.append("Moderate overlap. ", style="primary")
-            text.append("Hybrid retrieval is adding value by combining different signals.", style="muted")
+            text.append(
+                "Hybrid retrieval is adding value by combining different signals.", style="muted"
+            )
         elif bm25_count == 0:
             text.append("Analysis: ", style="muted")
             text.append("BM25 returned no results. ", style="warning")
-            text.append("Query terms may not appear in documents. Vector search is providing all results.", style="muted")
+            text.append(
+                "Query terms may not appear in documents. Vector search is providing all results.",
+                style="muted",
+            )
         else:
             text.append("Analysis: ", style="muted")
             text.append("Low overlap. ", style="tertiary")
@@ -418,22 +454,26 @@ class DebugCommand(BaseCommand):
             if len(overlap_ids) > 15:
                 text.append(f" +{len(overlap_ids) - 15} more", style="muted")
 
-        console.print(Panel(
-            text,
-            title="[primary]Retrieval Overlap Analysis[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                text,
+                title="[primary]Retrieval Overlap Analysis[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
         console.print()
 
     def _show_fused_results(self, fused: list, rrf_params: dict) -> None:
         """Display RRF fused results with contribution breakdown."""
         if not fused:
-            console.print(Panel(
-                Text("No fused results.", style="warning"),
-                title="[primary]RRF Fusion Results[/primary]",
-                border_style="primary",
-            ))
+            console.print(
+                Panel(
+                    Text("No fused results.", style="warning"),
+                    title="[primary]RRF Fusion Results[/primary]",
+                    border_style="primary",
+                )
+            )
             console.print()
             return
 
@@ -493,12 +533,14 @@ class DebugCommand(BaseCommand):
                 self._clean_preview(r.get("text", ""), 40),
             )
 
-        console.print(Panel(
-            table,
-            title=f"[primary]RRF Fusion Results ({len(fused)} chunks)[/primary]",
-            border_style="primary",
-            padding=(0, 1),
-        ))
+        console.print(
+            Panel(
+                table,
+                title=f"[primary]RRF Fusion Results ({len(fused)} chunks)[/primary]",
+                border_style="primary",
+                padding=(0, 1),
+            )
+        )
         console.print()
 
         # Contribution breakdown for top 3
@@ -563,7 +605,7 @@ class DebugCommand(BaseCommand):
         sorted_timings = sorted(
             [(k, v) for k, v in timings.items() if k != "total_ms"],
             key=lambda x: x[1],
-            reverse=True
+            reverse=True,
         )
 
         for stage, ms in sorted_timings:
@@ -580,12 +622,14 @@ class DebugCommand(BaseCommand):
         table.add_row("", "", "")
         table.add_row("[bold]Total[/bold]", f"[bold]{total:.2f}[/bold]", "")
 
-        console.print(Panel(
-            table,
-            title="[muted]Performance Timing[/muted]",
-            border_style="muted",
-            padding=(0, 1),
-        ))
+        console.print(
+            Panel(
+                table,
+                title="[muted]Performance Timing[/muted]",
+                border_style="muted",
+                padding=(0, 1),
+            )
+        )
 
     def _clean_preview(self, text: str, max_len: int = 50) -> str:
         """Clean text for preview display."""
@@ -649,13 +693,17 @@ class DebugCommand(BaseCommand):
             status_text.append(" All citations are valid", style="success")
         else:
             status_text.append("FAIL", style="error bold")
-            status_text.append(f" {report.get('reason', 'Citation validation failed')}", style="error")
+            status_text.append(
+                f" {report.get('reason', 'Citation validation failed')}", style="error"
+            )
 
-        console.print(Panel(
-            status_text,
-            border_style="success" if ok else "error",
-            padding=(0, 2),
-        ))
+        console.print(
+            Panel(
+                status_text,
+                border_style="success" if ok else "error",
+                padding=(0, 2),
+            )
+        )
 
         # Report details
         console.print()
@@ -669,22 +717,29 @@ class DebugCommand(BaseCommand):
         report_table.add_row("Unique Citations", str(report.get("unique_citations_count", 0)))
         report_table.add_row("Invalid IDs", str(report.get("invalid_ids", [])))
         report_table.add_row("Missing Paragraphs", str(report.get("missing_paragraphs", [])))
-        report_table.add_row("Allowed Chunk IDs", f"[{', '.join(str(x) for x in allowed[:10])}{'...' if len(allowed) > 10 else ''}]")
+        report_table.add_row(
+            "Allowed Chunk IDs",
+            f"[{', '.join(str(x) for x in allowed[:10])}{'...' if len(allowed) > 10 else ''}]",
+        )
 
-        console.print(Panel(
-            report_table,
-            title="[primary]Citation Report[/primary]",
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                report_table,
+                title="[primary]Citation Report[/primary]",
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         # Show answer preview
         if answer:
             preview = answer[:600] + "..." if len(answer) > 600 else answer
             console.print()
-            console.print(Panel(
-                Text(preview, style="text"),
-                title="[muted]Answer Preview[/muted]",
-                border_style="muted",
-                padding=(1, 2),
-            ))
+            console.print(
+                Panel(
+                    Text(preview, style="text"),
+                    title="[muted]Answer Preview[/muted]",
+                    border_style="muted",
+                    padding=(1, 2),
+                )
+            )

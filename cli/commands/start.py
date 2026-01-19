@@ -78,11 +78,13 @@ class StartCommand(BaseCommand):
 
     def _start_background(self, cmd: list[str], host: str, port: int) -> bool:
         """Start server in background and return to CLI."""
-        console.print(Panel(
-            self._create_startup_text(host, port, background=True),
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                self._create_startup_text(host, port, background=True),
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         # Animation frames
         frames = ["◐", "◓", "◑", "◒"]
@@ -149,7 +151,9 @@ class StartCommand(BaseCommand):
                 table.add_row("Log", "[muted]data/server.log[/muted]")
                 console.print(table)
                 console.print()
-                console.print("  [muted]Server is running in background. Use [/muted][command]/stop[/command][muted] to stop.[/muted]")
+                console.print(
+                    "  [muted]Server is running in background. Use [/muted][command]/stop[/command][muted] to stop.[/muted]"
+                )
 
                 return True
             else:
@@ -162,11 +166,13 @@ class StartCommand(BaseCommand):
 
     def _start_foreground(self, cmd: list[str], host: str, port: int) -> bool:
         """Start server in foreground with live output (blocks CLI)."""
-        console.print(Panel(
-            self._create_startup_text(host, port, background=False),
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                self._create_startup_text(host, port, background=False),
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         console.print()
         console.print("  [warning]⚠ Running in foreground mode. Press Ctrl+C to stop.[/warning]")
@@ -251,10 +257,14 @@ class StopCommand(BaseCommand):
 
         # Find uvicorn processes (always search, even if health check fails)
         killed = 0
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             try:
-                cmdline = proc.info.get('cmdline', [])
-                if cmdline and 'uvicorn' in ' '.join(cmdline) and 'src.main:app' in ' '.join(cmdline):
+                cmdline = proc.info.get("cmdline", [])
+                if (
+                    cmdline
+                    and "uvicorn" in " ".join(cmdline)
+                    and "src.main:app" in " ".join(cmdline)
+                ):
                     proc.terminate()
                     killed += 1
             except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -265,10 +275,14 @@ class StopCommand(BaseCommand):
             time.sleep(1)
 
             # Force kill any remaining processes
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            for proc in psutil.process_iter(["pid", "name", "cmdline"]):
                 try:
-                    cmdline = proc.info.get('cmdline', [])
-                    if cmdline and 'uvicorn' in ' '.join(cmdline) and 'src.main:app' in ' '.join(cmdline):
+                    cmdline = proc.info.get("cmdline", [])
+                    if (
+                        cmdline
+                        and "uvicorn" in " ".join(cmdline)
+                        and "src.main:app" in " ".join(cmdline)
+                    ):
                         proc.kill()  # Force kill if still running
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass

@@ -99,7 +99,7 @@ class QueryCommand(BaseCommand):
         import re
 
         # Extract citations
-        pattern = r'\[(?:Source:[^\]]*)?cid:(\d+)\]|\[cid:(\d+)\]'
+        pattern = r"\[(?:Source:[^\]]*)?cid:(\d+)\]|\[cid:(\d+)\]"
         matches = re.findall(pattern, answer)
         cited_ids = set()
         for m in matches:
@@ -153,12 +153,14 @@ class InteractiveQueryCommand(QueryCommand):
         header.append(" • ", style="#555555")
         header.append("/exit", style="#FF8C42")
 
-        console.print(Panel(
-            header,
-            border_style="#5D4E6D",
-            box=box.ROUNDED,
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                header,
+                border_style="#5D4E6D",
+                box=box.ROUNDED,
+                padding=(1, 2),
+            )
+        )
 
         show_sources = False
         show_debug = False
@@ -179,12 +181,16 @@ class InteractiveQueryCommand(QueryCommand):
                 break
             elif query.lower() == "/sources":
                 show_sources = not show_sources
-                status = "[#00E676]enabled[/#00E676]" if show_sources else "[#888888]disabled[/#888888]"
+                status = (
+                    "[#00E676]enabled[/#00E676]" if show_sources else "[#888888]disabled[/#888888]"
+                )
                 console.print(f"[#888888]Sources display:[/#888888] {status}")
                 continue
             elif query.lower() == "/debug":
                 show_debug = not show_debug
-                status = "[#00E676]enabled[/#00E676]" if show_debug else "[#888888]disabled[/#888888]"
+                status = (
+                    "[#00E676]enabled[/#00E676]" if show_debug else "[#888888]disabled[/#888888]"
+                )
                 console.print(f"[#888888]Debug display:[/#888888] {status}")
                 continue
             elif query.lower() == "/clear":

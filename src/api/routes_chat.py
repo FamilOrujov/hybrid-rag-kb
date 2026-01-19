@@ -18,7 +18,7 @@ _embedder = make_embedder(settings.ollama_base_url, get_initial_embed_model())
 
 _llm = ChatOllama(
     model=get_initial_chat_model(),
-    base_url = settings.ollama_base_url,
+    base_url=settings.ollama_base_url,
     temperature=0,
     validate_model_on_init=True,
     num_predict=settings.ollama_num_predict,
@@ -51,7 +51,7 @@ async def query(req: QueryRequest):
             query=req.query,
             chat_model=_llm,
             embedder=_embedder,
-            faiss_mgr = _faiss,
+            faiss_mgr=_faiss,
             bm25_k=req.bm25_k,
             vec_k=req.vec_k,
             final_k=req.top_k,

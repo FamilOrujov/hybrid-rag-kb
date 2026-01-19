@@ -28,18 +28,20 @@ from cli.utils.completions import CommandCompleter
 from cli.utils.history import CommandHistory
 
 # Prompt styling
-PROMPT_STYLE = Style.from_dict({
-    "prompt": "#FF8C42 bold",
-    # Completion menu styling
-    "completion-menu": "bg:#1a1625 #e8e8e8",
-    "completion-menu.completion": "bg:#1a1625 #c77dff",
-    "completion-menu.completion.current": "bg:#9d4edd #ffffff bold",
-    "completion-menu.meta.completion": "bg:#1a1625 #888888",
-    "completion-menu.meta.completion.current": "bg:#9d4edd #e8e8e8",
-    # Scrollbar
-    "scrollbar.background": "bg:#1a1625",
-    "scrollbar.button": "bg:#9d4edd",
-})
+PROMPT_STYLE = Style.from_dict(
+    {
+        "prompt": "#FF8C42 bold",
+        # Completion menu styling
+        "completion-menu": "bg:#1a1625 #e8e8e8",
+        "completion-menu.completion": "bg:#1a1625 #c77dff",
+        "completion-menu.completion.current": "bg:#9d4edd #ffffff bold",
+        "completion-menu.meta.completion": "bg:#1a1625 #888888",
+        "completion-menu.meta.completion.current": "bg:#9d4edd #e8e8e8",
+        # Scrollbar
+        "scrollbar.background": "bg:#1a1625",
+        "scrollbar.button": "bg:#9d4edd",
+    }
+)
 
 
 class HybridRAGCLI:
@@ -50,9 +52,7 @@ class HybridRAGCLI:
         set_config(self.config)
 
         # Initialize components
-        self.history = CommandHistory(
-            Path.home() / ".hybrid-rag" / "history"
-        )
+        self.history = CommandHistory(Path.home() / ".hybrid-rag" / "history")
         self.completer = CommandCompleter()
 
         # Command registry
@@ -105,7 +105,7 @@ class HybridRAGCLI:
 
     def get_prompt(self) -> HTML:
         """Generate the prompt."""
-        return HTML('<prompt>❯</prompt> ')
+        return HTML("<prompt>❯</prompt> ")
 
     def run(self) -> int:
         """Run the CLI REPL."""
@@ -189,11 +189,17 @@ class HybridRAGCLI:
         try:
             response = api.health()
             if response.success:
-                console.print(f"  [success]●[/success] Server running at [primary]{self.config.base_url}[/primary]")
+                console.print(
+                    f"  [success]●[/success] Server running at [primary]{self.config.base_url}[/primary]"
+                )
             else:
-                console.print("  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
+                console.print(
+                    "  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch."
+                )
         except Exception:
-            console.print("  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
+            console.print(
+                "  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch."
+            )
 
         console.print()
 

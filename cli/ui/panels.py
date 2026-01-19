@@ -57,8 +57,10 @@ def create_stats_panel(data: dict[str, Any]) -> Panel:
     gpu_text = Text()
     gpu_enabled = gpu.get("configured_use_gpu", False)
     gpu_text.append("GPU: ", style="#888888")
-    gpu_text.append("✓ Enabled" if gpu_enabled else "✗ Disabled",
-                   style="#00E676 bold" if gpu_enabled else "#FFB347")
+    gpu_text.append(
+        "✓ Enabled" if gpu_enabled else "✗ Disabled",
+        style="#00E676 bold" if gpu_enabled else "#FFB347",
+    )
     gpu_text.append("  │  ", style="#555555")
     gpu_text.append("Devices: ", style="#888888")
     gpu_text.append(str(gpu.get("gpu_count_visible_to_faiss", 0)), style="#FFB347 bold")
@@ -106,12 +108,12 @@ def format_answer_with_citations(answer: str) -> Text:
     # - [cid:123] - simple format
     # - [Source: ... | cid:...] - full format with filename
     # The pattern matches the entire bracketed citation
-    pattern = r'\[Source:[^\]]+\]|\[cid:\d+(?:,\s*\d+)*\]'
+    pattern = r"\[Source:[^\]]+\]|\[cid:\d+(?:,\s*\d+)*\]"
 
     last_end = 0
     for match in re.finditer(pattern, answer):
         # Add text before the citation
-        text.append(answer[last_end:match.start()], style="text")
+        text.append(answer[last_end : match.start()], style="text")
         # Add the citation with highlighting (cyan/teal for visibility)
         text.append(match.group(0), style="citation")
         last_end = match.end()
@@ -183,7 +185,11 @@ def create_sources_panel(sources: list[dict[str, Any]], max_sources: int = 5) ->
     for source in sources[:max_sources]:
         chunk_id = str(source.get("chunk_id", "?"))
         filename = source.get("filename", "Unknown")[:25]
-        text = source.get("text", "")[:80] + "..." if len(source.get("text", "")) > 80 else source.get("text", "")
+        text = (
+            source.get("text", "")[:80] + "..."
+            if len(source.get("text", "")) > 80
+            else source.get("text", "")
+        )
         table.add_row(chunk_id, filename, text)
 
     if len(sources) > max_sources:
@@ -246,7 +252,12 @@ def create_retrieval_debug_panel(data: dict[str, Any]) -> Panel:
     # BM25 results table
     bm25_results = data.get("bm25", [])[:5]
     if bm25_results:
-        bm25_table = Table(title="[secondary]BM25 Results[/secondary]", show_header=True, header_style="secondary", box=None)
+        bm25_table = Table(
+            title="[secondary]BM25 Results[/secondary]",
+            show_header=True,
+            header_style="secondary",
+            box=None,
+        )
         bm25_table.add_column("CID", style="number", width=6)
         bm25_table.add_column("Score", style="warning", width=10)
         bm25_table.add_column("File", style="path", width=20)
@@ -257,7 +268,7 @@ def create_retrieval_debug_panel(data: dict[str, Any]) -> Panel:
                 str(r.get("chunk_id", "?")),
                 f"{r.get('bm25_score', 0):.4f}",
                 str(r.get("filename", "?"))[:20],
-                str(r.get("text", ""))[:40] + "..."
+                str(r.get("text", ""))[:40] + "...",
             )
         elements.append(bm25_table)
         elements.append(Text())
@@ -265,7 +276,12 @@ def create_retrieval_debug_panel(data: dict[str, Any]) -> Panel:
     # Vector results table
     vec_results = data.get("vector", [])[:5]
     if vec_results:
-        vec_table = Table(title="[tertiary]Vector Results[/tertiary]", show_header=True, header_style="tertiary", box=None)
+        vec_table = Table(
+            title="[tertiary]Vector Results[/tertiary]",
+            show_header=True,
+            header_style="tertiary",
+            box=None,
+        )
         vec_table.add_column("CID", style="number", width=6)
         vec_table.add_column("Score", style="warning", width=10)
         vec_table.add_column("File", style="path", width=20)
@@ -276,7 +292,7 @@ def create_retrieval_debug_panel(data: dict[str, Any]) -> Panel:
                 str(r.get("chunk_id", "?")),
                 f"{r.get('vec_score', 0):.4f}",
                 str(r.get("filename", "?"))[:20],
-                str(r.get("text", ""))[:40] + "..."
+                str(r.get("text", ""))[:40] + "...",
             )
         elements.append(vec_table)
 
@@ -303,7 +319,9 @@ def create_ingest_result_panel(data: dict[str, Any]) -> Panel:
     if len(received) > 5:
         table.add_row("", f"[#555555]  └─ +{len(received) - 5} more...[/#555555]")
 
-    table.add_row("Documents Added", f"[#00E676 bold]{data.get('documents_added', 0)}[/#00E676 bold]")
+    table.add_row(
+        "Documents Added", f"[#00E676 bold]{data.get('documents_added', 0)}[/#00E676 bold]"
+    )
     table.add_row("Chunks Created", f"[#00E676 bold]{data.get('chunks_added', 0)}[/#00E676 bold]")
     table.add_row("Vectors Indexed", f"[#00E676 bold]{data.get('vectors_added', 0)}[/#00E676 bold]")
 

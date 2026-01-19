@@ -51,6 +51,7 @@ class IngestCommand(BaseCommand):
             elif "*" in arg or "?" in arg:
                 # Glob pattern
                 import glob
+
                 for match in glob.glob(arg):
                     p = Path(match)
                     if p.is_file():
@@ -117,16 +118,18 @@ class IngestCommand(BaseCommand):
     def _prompt_for_files(self) -> list[Path]:
         """Prompt user for file paths."""
         console.print()
-        console.print(Panel(
-            Text.from_markup(
-                "[primary]Document Ingestion[/primary]\n\n"
-                "Enter file paths (one per line) or drag files here.\n"
-                "Supported: [tertiary].pdf .txt .md .json .csv[/tertiary]\n"
-                "Type [command]done[/command] when finished."
-            ),
-            border_style="primary",
-            padding=(1, 2),
-        ))
+        console.print(
+            Panel(
+                Text.from_markup(
+                    "[primary]Document Ingestion[/primary]\n\n"
+                    "Enter file paths (one per line) or drag files here.\n"
+                    "Supported: [tertiary].pdf .txt .md .json .csv[/tertiary]\n"
+                    "Type [command]done[/command] when finished."
+                ),
+                border_style="primary",
+                padding=(1, 2),
+            )
+        )
 
         files = []
         while True:
@@ -190,7 +193,9 @@ class IngestCommand(BaseCommand):
             )
 
         console.print(table)
-        console.print(f"\n  [muted]Total:[/muted] [number]{len(files)}[/number] files, [number]{self._format_size(total_size)}[/number]")
+        console.print(
+            f"\n  [muted]Total:[/muted] [number]{len(files)}[/number] files, [number]{self._format_size(total_size)}[/number]"
+        )
 
     def _format_size(self, size: int) -> str:
         """Format file size in human-readable form."""

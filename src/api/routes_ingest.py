@@ -12,7 +12,10 @@ from src.rag.vectorstore import FaissIndexManager
 router = APIRouter()
 
 _embedder = make_embedder(settings.ollama_base_url, get_initial_embed_model())
-_faiss = FaissIndexManager(settings.faiss_dir, use_gpu=settings.use_faiss_gpu, gpu_device=settings.faiss_gpu_device)
+_faiss = FaissIndexManager(
+    settings.faiss_dir, use_gpu=settings.use_faiss_gpu, gpu_device=settings.faiss_gpu_device
+)
+
 
 @router.post("/ingest")
 async def ingest(files: list[UploadFile] = File(...)):

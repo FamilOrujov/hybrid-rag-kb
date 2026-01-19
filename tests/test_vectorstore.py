@@ -53,11 +53,14 @@ class TestFaissIndexManager:
         manager.load_or_create(dim=4)
 
         ids = [1, 2, 3]
-        vectors = np.array([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-        ], dtype=np.float32)
+        vectors = np.array(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
 
         manager.add(ids, vectors)
 
@@ -68,11 +71,14 @@ class TestFaissIndexManager:
         manager.load_or_create(dim=4)
 
         ids = [10, 20, 30]
-        vectors = np.array([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-        ], dtype=np.float32)
+        vectors = np.array(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
         manager.add(ids, vectors)
 
         query = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
@@ -87,11 +93,14 @@ class TestFaissIndexManager:
         manager.load_or_create(dim=4)
 
         ids = [1, 2, 3]
-        vectors = np.array([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.9, 0.1, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0],
-        ], dtype=np.float32)
+        vectors = np.array(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.9, 0.1, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            dtype=np.float32,
+        )
         manager.add(ids, vectors)
 
         query = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)

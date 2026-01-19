@@ -18,13 +18,15 @@ def print_error(message: str, title: str = "Error") -> None:
     content = Text()
     content.append(message, style="#FF5252")
 
-    console.print(Panel(
-        content,
-        title=f"[#FF5252 bold]✖ {title}[/#FF5252 bold]",
-        border_style="#FF5252",
-        box=box.ROUNDED,
-        padding=(0, 2),
-    ))
+    console.print(
+        Panel(
+            content,
+            title=f"[#FF5252 bold]✖ {title}[/#FF5252 bold]",
+            border_style="#FF5252",
+            box=box.ROUNDED,
+            padding=(0, 2),
+        )
+    )
 
 
 def print_success(message: str, title: str = "Success") -> None:
@@ -32,13 +34,15 @@ def print_success(message: str, title: str = "Success") -> None:
     content = Text()
     content.append(message, style="#00E676")
 
-    console.print(Panel(
-        content,
-        title=f"[#00E676 bold]✔ {title}[/#00E676 bold]",
-        border_style="#00E676",
-        box=box.ROUNDED,
-        padding=(0, 2),
-    ))
+    console.print(
+        Panel(
+            content,
+            title=f"[#00E676 bold]✔ {title}[/#00E676 bold]",
+            border_style="#00E676",
+            box=box.ROUNDED,
+            padding=(0, 2),
+        )
+    )
 
 
 def print_warning(message: str, title: str = "Warning") -> None:
@@ -46,13 +50,15 @@ def print_warning(message: str, title: str = "Warning") -> None:
     content = Text()
     content.append(message, style="#FFB347")
 
-    console.print(Panel(
-        content,
-        title=f"[#FFB347 bold]⚠ {title}[/#FFB347 bold]",
-        border_style="#FFB347",
-        box=box.ROUNDED,
-        padding=(0, 2),
-    ))
+    console.print(
+        Panel(
+            content,
+            title=f"[#FFB347 bold]⚠ {title}[/#FFB347 bold]",
+            border_style="#FFB347",
+            box=box.ROUNDED,
+            padding=(0, 2),
+        )
+    )
 
 
 def print_info(message: str, title: str = "Info") -> None:
@@ -60,13 +66,15 @@ def print_info(message: str, title: str = "Info") -> None:
     content = Text()
     content.append(message, style="#B388FF")
 
-    console.print(Panel(
-        content,
-        title=f"[#B388FF bold]ℹ {title}[/#B388FF bold]",
-        border_style="#B388FF",
-        box=box.ROUNDED,
-        padding=(0, 2),
-    ))
+    console.print(
+        Panel(
+            content,
+            title=f"[#B388FF bold]ℹ {title}[/#B388FF bold]",
+            border_style="#B388FF",
+            box=box.ROUNDED,
+            padding=(0, 2),
+        )
+    )
 
 
 def print_accent(message: str, title: str = "") -> None:
@@ -75,12 +83,14 @@ def print_accent(message: str, title: str = "") -> None:
     content.append(message, style="#00CED1")
 
     if title:
-        console.print(Panel(
-            content,
-            title=f"[#00CED1 bold]{title}[/#00CED1 bold]",
-            border_style="#00CED1",
-            box=box.ROUNDED,
-            padding=(0, 2),
-        ))
+        console.print(
+            Panel(
+                content,
+                title=f"[#00CED1 bold]{title}[/#00CED1 bold]",
+                border_style="#00CED1",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+        )
     else:
         console.print(content)

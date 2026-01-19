@@ -10,4 +10,3 @@ def make_embedder(base_url: str, model: str, timeout: float = 600.0) -> OllamaEm
         model=model,
         client_kwargs={"timeout": httpx.Timeout(timeout)},
     )
-

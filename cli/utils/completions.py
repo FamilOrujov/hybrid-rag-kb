@@ -34,7 +34,15 @@ COMMAND_OPTIONS = {
     "/start": ["--host", "--port", "--reload", "--foreground", "--fg"],
     "/stop": [],
     "/restart": [],
-    "/query": ["--session", "--top_k", "--bm25_k", "--vec_k", "--memory_k", "--show-sources", "--debug"],
+    "/query": [
+        "--session",
+        "--top_k",
+        "--bm25_k",
+        "--vec_k",
+        "--memory_k",
+        "--show-sources",
+        "--debug",
+    ],
     "/chat": ["--session"],
     "/ingest": ["--dir"],
     "/stats": ["--json"],
@@ -50,9 +58,7 @@ COMMAND_OPTIONS = {
 class CommandCompleter(Completer):
     """Completer for CLI commands with enhanced display."""
 
-    def get_completions(
-        self, document: Document, complete_event
-    ) -> Iterable[Completion]:
+    def get_completions(self, document: Document, complete_event) -> Iterable[Completion]:
         """Get completions for the current input with descriptions."""
         text = document.text_before_cursor
         words = text.split()
@@ -165,7 +171,9 @@ class CommandCompleter(Completer):
 
         if parent.exists():
             try:
-                for item in sorted(parent.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
+                for item in sorted(
+                    parent.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())
+                ):
                     if item.name.startswith(prefix) and not item.name.startswith("."):
                         completion = str(item)
                         if item.is_dir():

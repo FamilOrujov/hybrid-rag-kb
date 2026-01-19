@@ -123,9 +123,7 @@ async def debug_retrieval(req: RetrievalDebugRequest):
         t0 = time.perf_counter()
         raw_tokens = req.query.lower().split()
         bm25_query_str = make_bm25_query(
-            req.query,
-            mode=req.bm25_mode,
-            max_terms=req.bm25_max_terms
+            req.query, mode=req.bm25_mode, max_terms=req.bm25_max_terms
         )
         bm25_tokens = bm25_query_str.split() if bm25_query_str else []
         timings["query_analysis_ms"] = (time.perf_counter() - t0) * 1000
@@ -228,8 +226,12 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             item["in_vector"] = cid in vec_ids
             item["in_both"] = cid in overlap_ids
             # Find ranks
-            item["bm25_rank"] = next((r["bm25_rank"] for r in bm25_results if r["chunk_id"] == cid), None)
-            item["vec_rank"] = next((r["vec_rank"] for r in vec_results if r["chunk_id"] == cid), None)
+            item["bm25_rank"] = next(
+                (r["bm25_rank"] for r in bm25_results if r["chunk_id"] == cid), None
+            )
+            item["vec_rank"] = next(
+                (r["vec_rank"] for r in vec_results if r["chunk_id"] == cid), None
+            )
 
         # Compute RRF contribution breakdown for top results
         for item in fused:
@@ -259,7 +261,9 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             "bm25_only_ids": sorted(bm25_only_ids),
             "vector_only_count": len(vec_only_ids),
             "vector_only_ids": sorted(vec_only_ids)[:20],  # Limit for display
-            "overlap_percentage": round(len(overlap_ids) / max(len(bm25_ids | vec_ids), 1) * 100, 1),
+            "overlap_percentage": round(
+                len(overlap_ids) / max(len(bm25_ids | vec_ids), 1) * 100, 1
+            ),
         },
         "rrf_params": {
             "rrf_k": req.rrf_k,

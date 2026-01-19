@@ -20,7 +20,7 @@ async def get_recent_messages(
     db: aiosqlite.Connection,
     session_id: str,
     limit: int = 6,
-) ->list[tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """
     Returns messages in chronological order.
     We map role "user" to ChatOllama role "human".
@@ -49,4 +49,3 @@ async def get_recent_messages(
             out.append(("system", r["content"]))
 
     return out
-

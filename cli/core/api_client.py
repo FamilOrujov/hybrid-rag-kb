@@ -12,6 +12,7 @@ import httpx
 @dataclass
 class APIResponse:
     """Wrapper for API responses."""
+
     success: bool
     data: dict[str, Any] | None = None
     error: str | None = None
@@ -147,14 +148,19 @@ class APIClient:
         Uses extended timeout (5 min) since LLM inference can be slow,
         especially on first use when model is being loaded.
         """
-        return self._request("POST", "/query", json={
-            "session_id": session_id,
-            "query": query,
-            "bm25_k": bm25_k,
-            "vec_k": vec_k,
-            "top_k": top_k,
-            "memory_k": memory_k,
-        }, use_llm_timeout=True)
+        return self._request(
+            "POST",
+            "/query",
+            json={
+                "session_id": session_id,
+                "query": query,
+                "bm25_k": bm25_k,
+                "vec_k": vec_k,
+                "top_k": top_k,
+                "memory_k": memory_k,
+            },
+            use_llm_timeout=True,
+        )
 
     # Ingest
     def ingest(self, file_paths: list[Path]) -> APIResponse:
@@ -185,12 +191,16 @@ class APIClient:
         top_k: int = 8,
     ) -> APIResponse:
         """Debug retrieval (BM25, vector, fused results)."""
-        return self._request("POST", "/debug/retrieval", json={
-            "query": query,
-            "bm25_k": bm25_k,
-            "vec_k": vec_k,
-            "top_k": top_k,
-        })
+        return self._request(
+            "POST",
+            "/debug/retrieval",
+            json={
+                "query": query,
+                "bm25_k": bm25_k,
+                "vec_k": vec_k,
+                "top_k": top_k,
+            },
+        )
 
     def debug_citations(
         self,
@@ -202,14 +212,19 @@ class APIClient:
         bm25_mode: str = "heuristic",
     ) -> APIResponse:
         """Debug citations. Uses extended timeout for LLM operations."""
-        return self._request("POST", "/debug/citations", json={
-            "query": query,
-            "session_id": session_id,
-            "bm25_k": bm25_k,
-            "vec_k": vec_k,
-            "top_k": top_k,
-            "bm25_mode": bm25_mode,
-        }, use_llm_timeout=True)
+        return self._request(
+            "POST",
+            "/debug/citations",
+            json={
+                "query": query,
+                "session_id": session_id,
+                "bm25_k": bm25_k,
+                "vec_k": vec_k,
+                "top_k": top_k,
+                "bm25_mode": bm25_mode,
+            },
+            use_llm_timeout=True,
+        )
 
     # Chunks
     def get_chunk(self, chunk_id: int) -> APIResponse:

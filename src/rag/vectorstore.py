@@ -85,6 +85,7 @@ class FaissIndexManager:
             # Fall back to CPU-only mode
             self.gpu_index = None
             import logging
+
             logging.warning(f"Failed to copy FAISS index to GPU, falling back to CPU: {e}")
 
     def add(self, ids: list[int], vectors: np.ndarray) -> None:

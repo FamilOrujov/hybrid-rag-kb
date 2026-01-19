@@ -18,7 +18,6 @@ def load_text_from_path(path: str) -> tuple[str, str]:
         meta = {"type": "pdf", "pages": len(reader.pages)}
         return text, meta
 
-
     # text-like fallback
     data = p.read_bytes()
     text = data.decode("utf-8", errors="ignore")

@@ -266,9 +266,7 @@ async def answer_question(
         missing = report.get("missing_paragraphs", [])
         if missing:
             answer = _inject_citations_per_paragraph(
-                answer,
-                cite_tokens=cite_tokens,
-                missing_paragraphs=missing
+                answer, cite_tokens=cite_tokens, missing_paragraphs=missing
             )
             ok, report = validate_citations_detailed(
                 answer_text=answer,
@@ -286,9 +284,7 @@ async def answer_question(
                 if allowed_ids:
                     replacement = f"[Source: {fused[0]['filename']} | cid:{allowed_ids[0]}]"
                     answer = re.sub(
-                        rf"\[Source:[^\]]*cid:{invalid_id}[^\]]*\]",
-                        replacement,
-                        answer
+                        rf"\[Source:[^\]]*cid:{invalid_id}[^\]]*\]", replacement, answer
                     )
 
             ok, report = validate_citations_detailed(

@@ -19,8 +19,6 @@ app = FastAPI(title="Hybrid RAG KB (BM25 + FAISS GPU)", lifespan=lifespan)
 app.include_router(router)
 
 
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
