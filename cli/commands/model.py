@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import httpx
 from rich.panel import Panel
+from rich.prompt import Prompt
 from rich.table import Table
 from rich.text import Text
-from rich.prompt import Prompt
-from rich.console import Group
 
 from cli.commands.base import BaseCommand
 from cli.ui.console import console, print_error, print_success, print_warning
 from cli.ui.spinners import create_spinner
-
 
 # Longer timeout for model operations (model loading can be slow)
 MODEL_TIMEOUT = 300.0  # 5 minutes
@@ -20,29 +18,29 @@ MODEL_TIMEOUT = 300.0  # 5 minutes
 
 class ModelCommand(BaseCommand):
     """Manage LLM models for chat and embeddings."""
-    
+
     name = "model"
     description = "List and select Ollama models for chat and embeddings"
     usage = "/model [list|set|info] [--chat MODEL] [--embed MODEL]"
     aliases = ["models", "llm"]
-    
+
     def execute(self, args: list[str]) -> bool:
         """Execute model command."""
         flags, remaining = self.parse_flags(args)
-        
+
         # Direct model setting via flags
         if flags.get("chat") or flags.get("embed"):
             return self._set_models(
                 chat_model=flags.get("chat"),
                 embed_model=flags.get("embed"),
             )
-        
+
         if not remaining:
             # Default: show current models and available options
             return self._show_models()
-        
+
         subcommand = remaining[0].lower()
-        
+
         if subcommand in ["list", "ls", "l"]:
             return self._list_models()
         elif subcommand in ["set", "use", "select"]:
@@ -53,23 +51,23 @@ class ModelCommand(BaseCommand):
             # Treat as model name for quick set
             self._show_model_help()
             return True
-    
+
     def _show_models(self) -> bool:
         """Show current models and available options."""
         with create_spinner("Fetching models from Ollama...", style="processing"):
             response = self.api._request("GET", "/models")
-        
+
         if not response.success:
             # Try querying Ollama directly
             return self._list_models_direct()
-        
+
         data = response.data or {}
         current = data.get("current", {})
         available = data.get("available", {})
         error = data.get("error")
-        
+
         console.print()
-        
+
         # Current configuration
         current_text = Text()
         current_text.append("Chat Model:  ", style="muted")
@@ -80,26 +78,26 @@ class ModelCommand(BaseCommand):
         current_text.append("\n")
         current_text.append("Ollama URL:  ", style="muted")
         current_text.append(current.get("ollama_base_url", "N/A"), style="tertiary")
-        
+
         console.print(Panel(
             current_text,
             title="[primary]Current Models[/primary]",
             border_style="primary",
             padding=(1, 2),
         ))
-        
+
         if error:
             console.print()
             print_warning(f"Ollama: {error}")
-        
+
         # Available models (separate tables)
         chat_models = available.get("chat_models", [])
         embed_models = available.get("embed_models", [])
-        
+
         if chat_models or embed_models:
             console.print()
             self._show_available_models_separate(chat_models, embed_models)
-        
+
         # Usage tips
         console.print()
         tips = Text()
@@ -113,9 +111,9 @@ class ModelCommand(BaseCommand):
         tips.append("MODEL", style="warning")
         tips.append("        Set embedding model\n", style="text")
         console.print(tips)
-        
+
         return True
-    
+
     def _show_available_models_separate(self, chat_models: list, embed_models: list) -> None:
         """Display available models in separate tables for chat and embed."""
         # Chat models table
@@ -129,16 +127,16 @@ class ModelCommand(BaseCommand):
             chat_table.add_column("#", style="muted", width=4)
             chat_table.add_column("Model Name", style="command", width=30)
             chat_table.add_column("Size", style="number", width=10)
-            
+
             for i, model in enumerate(chat_models, 1):
                 chat_table.add_row(
                     str(i),
                     model.get("name", "?"),
                     f"{model.get('size_gb', 0):.1f} GB",
                 )
-            
+
             console.print(chat_table)
-        
+
         # Embedding models table
         if embed_models:
             console.print()
@@ -151,20 +149,20 @@ class ModelCommand(BaseCommand):
             embed_table.add_column("#", style="muted", width=4)
             embed_table.add_column("Model Name", style="command", width=30)
             embed_table.add_column("Size", style="number", width=10)
-            
+
             for i, model in enumerate(embed_models, 1):
                 embed_table.add_row(
                     str(i),
                     model.get("name", "?"),
                     f"{model.get('size_gb', 0):.1f} GB",
                 )
-            
+
             console.print(embed_table)
-    
+
     def _list_models(self) -> bool:
         """List all available models from Ollama."""
         return self._list_models_direct()
-    
+
     def _list_models_direct(self) -> bool:
         """Query Ollama directly for models."""
         with create_spinner("Connecting to Ollama...", style="processing"):
@@ -182,36 +180,36 @@ class ModelCommand(BaseCommand):
             except Exception as e:
                 print_error(f"Failed to query Ollama: {e}")
                 return False
-        
+
         models = data.get("models", [])
-        
+
         if not models:
             print_warning("No models found in Ollama.")
             console.print("[muted]Try: ollama pull gemma3:1b[/muted]")
             return True
-        
+
         console.print()
-        
+
         # Categorize models
         chat_models = []
         embed_models = []
-        
+
         for model in models:
             name = model.get("name", "")
             size = model.get("size", 0)
             modified = model.get("modified_at", "")[:10] if model.get("modified_at") else ""
-            
+
             model_info = {
                 "name": name,
                 "size_gb": round(size / (1024**3), 2) if size else 0,
                 "modified": modified,
             }
-            
+
             if "embed" in name.lower():
                 embed_models.append(model_info)
             else:
                 chat_models.append(model_info)
-        
+
         # Display tables
         if chat_models:
             chat_table = Table(
@@ -224,7 +222,7 @@ class ModelCommand(BaseCommand):
             chat_table.add_column("Model Name", style="command", width=35)
             chat_table.add_column("Size", style="number", width=10)
             chat_table.add_column("Modified", style="muted", width=12)
-            
+
             for i, model in enumerate(chat_models, 1):
                 chat_table.add_row(
                     str(i),
@@ -232,9 +230,9 @@ class ModelCommand(BaseCommand):
                     f"{model['size_gb']:.1f} GB",
                     model["modified"],
                 )
-            
+
             console.print(chat_table)
-        
+
         if embed_models:
             console.print()
             embed_table = Table(
@@ -247,7 +245,7 @@ class ModelCommand(BaseCommand):
             embed_table.add_column("Model Name", style="command", width=35)
             embed_table.add_column("Size", style="number", width=10)
             embed_table.add_column("Modified", style="muted", width=12)
-            
+
             for i, model in enumerate(embed_models, 1):
                 embed_table.add_row(
                     str(i),
@@ -255,14 +253,14 @@ class ModelCommand(BaseCommand):
                     f"{model['size_gb']:.1f} GB",
                     model["modified"],
                 )
-            
+
             console.print(embed_table)
-        
+
         console.print()
         console.print("[muted]Use [command]/model set[/command] to change models interactively[/muted]")
-        
+
         return True
-    
+
     def _interactive_select(self) -> bool:
         """Interactive model selection."""
         # First get available models
@@ -280,17 +278,17 @@ class ModelCommand(BaseCommand):
             except Exception as e:
                 print_error(f"Failed to query Ollama: {e}")
                 return False
-        
+
         models = data.get("models", [])
         if not models:
             print_warning("No models available in Ollama.")
             return False
-        
+
         # Categorize
         all_names = [m.get("name", "") for m in models]
         chat_names = [n for n in all_names if "embed" not in n.lower()]
         embed_names = [n for n in all_names if "embed" in n.lower()]
-        
+
         # Get current from API
         current_chat = "unknown"
         current_embed = "unknown"
@@ -301,7 +299,7 @@ class ModelCommand(BaseCommand):
                 current_embed = resp.data.get("current", {}).get("embed_model", "unknown")
         except Exception:
             pass
-        
+
         console.print()
         console.print(Panel(
             f"[muted]Current chat model:[/muted] [primary]{current_chat}[/primary]\n"
@@ -310,21 +308,21 @@ class ModelCommand(BaseCommand):
             border_style="primary",
             padding=(1, 2),
         ))
-        
+
         # Select chat model
         console.print()
         console.print("[primary]Available Chat Models:[/primary]")
         for i, name in enumerate(chat_names, 1):
             marker = " [success]current[/success]" if name == current_chat else ""
             console.print(f"  [muted]{i}.[/muted] [command]{name}[/command]{marker}")
-        
+
         console.print()
         chat_input = Prompt.ask(
             "[primary]>[/primary] [text]Select chat model (number, name, or Enter to skip)[/text]",
             console=console,
             default="",
         ).strip()
-        
+
         new_chat = None
         if chat_input:
             if chat_input.isdigit():
@@ -338,7 +336,7 @@ class ModelCommand(BaseCommand):
                 matches = [n for n in all_names if chat_input.lower() in n.lower()]
                 if matches:
                     new_chat = matches[0]
-        
+
         # Select embed model
         if embed_names:
             console.print()
@@ -346,14 +344,14 @@ class ModelCommand(BaseCommand):
             for i, name in enumerate(embed_names, 1):
                 marker = " [success]current[/success]" if name == current_embed else ""
                 console.print(f"  [muted]{i}.[/muted] [command]{name}[/command]{marker}")
-            
+
             console.print()
             embed_input = Prompt.ask(
                 "[primary]>[/primary] [text]Select embed model (number, name, or Enter to skip)[/text]",
                 console=console,
                 default="",
             ).strip()
-            
+
             new_embed = None
             if embed_input:
                 if embed_input.isdigit():
@@ -368,26 +366,26 @@ class ModelCommand(BaseCommand):
                         new_embed = matches[0]
         else:
             new_embed = None
-        
+
         # Apply changes
         if new_chat or new_embed:
             return self._set_models(chat_model=new_chat, embed_model=new_embed)
         else:
             console.print("[muted]No changes made.[/muted]")
             return True
-    
+
     def _set_models(self, chat_model: str | None = None, embed_model: str | None = None) -> bool:
         """Set the active models via API."""
         if not chat_model and not embed_model:
             print_warning("No model specified. Use --chat MODEL or --embed MODEL")
             return False
-        
+
         payload = {}
         if chat_model:
             payload["chat_model"] = chat_model
         if embed_model:
             payload["embed_model"] = embed_model
-        
+
         # Show what we're doing
         console.print()
         if chat_model:
@@ -396,7 +394,7 @@ class ModelCommand(BaseCommand):
             console.print(f"[muted]Loading embed model:[/muted] [secondary]{embed_model}[/secondary]")
         console.print("[muted]This may take a moment for large models...[/muted]")
         console.print()
-        
+
         # Use longer timeout for model operations
         try:
             with create_spinner("Updating models (this may take a while for large models)...", style="processing"):
@@ -405,7 +403,7 @@ class ModelCommand(BaseCommand):
                         f"{self.api.base_url}/models",
                         json=payload,
                     )
-                    
+
                     if response.status_code >= 400:
                         try:
                             error_data = response.json()
@@ -421,9 +419,9 @@ class ModelCommand(BaseCommand):
                             error_msg = response.text
                         print_error(f"Failed to update models: {error_msg}")
                         return False
-                    
+
                     data = response.json()
-        
+
         except httpx.TimeoutException:
             print_error(
                 "Model loading timed out. This can happen with very large models.\n"
@@ -437,9 +435,9 @@ class ModelCommand(BaseCommand):
         except Exception as e:
             print_error(f"Request failed: {type(e).__name__}: {e}")
             return False
-        
+
         changes = data.get("changes", {})
-        
+
         if changes:
             for key, change in changes.items():
                 label = "Chat Model" if key == "chat_model" else "Embed Model"
@@ -449,7 +447,7 @@ class ModelCommand(BaseCommand):
                     f"[primary]{change.get('to')}[/primary]"
                 )
             print_success("Models updated successfully!")
-            
+
             # Check for dimension warning (embedding model change with existing index)
             embed_change = changes.get("embed_model", {})
             dimension_warning = embed_change.get("dimension_warning")
@@ -468,27 +466,27 @@ class ModelCommand(BaseCommand):
                 ))
         else:
             console.print("[muted]No changes were made.[/muted]")
-        
+
         # Note about persistence
         console.print()
         console.print(
             "[muted]Model changes are automatically saved and will persist across server restarts.[/muted]"
         )
-        
+
         return True
-    
+
     def _show_current(self) -> bool:
         """Show current model configuration."""
         with create_spinner("Fetching configuration...", style="processing"):
             response = self.api._request("GET", "/models")
-        
+
         if not response.success:
             print_error(response.error or "Failed to get model info")
             return False
-        
+
         data = response.data or {}
         current = data.get("current", {})
-        
+
         console.print()
         console.print(Panel(
             f"[muted]Chat Model:[/muted]   [primary.bold]{current.get('chat_model', 'N/A')}[/primary.bold]\n"
@@ -498,9 +496,9 @@ class ModelCommand(BaseCommand):
             border_style="primary",
             padding=(1, 2),
         ))
-        
+
         return True
-    
+
     def _show_model_help(self) -> None:
         """Show model command help."""
         console.print()

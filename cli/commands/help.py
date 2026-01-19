@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 from rich.panel import Panel
-from rich.text import Text
 from rich.table import Table
-from rich.console import Group
+from rich.text import Text
 
 from cli.commands.base import BaseCommand
 from cli.ui.console import console
 from cli.ui.logo import print_logo
-
 
 COMMANDS = [
     {
@@ -108,16 +106,16 @@ COMMANDS = [
 
 class HelpCommand(BaseCommand):
     """Display help information."""
-    
+
     name = "help"
     description = "Show help information"
     usage = "/help [command]"
     aliases = ["h", "?"]
-    
+
     def execute(self, args: list[str]) -> bool:
         """Display help."""
         flags, remaining = self.parse_flags(args)
-        
+
         if remaining:
             # Show help for specific command
             cmd_name = remaining[0].lower().lstrip("/")
@@ -125,11 +123,11 @@ class HelpCommand(BaseCommand):
         else:
             # Show general help
             return self._show_general_help()
-    
+
     def _show_general_help(self) -> bool:
         """Show general help with all commands."""
         print_logo(show_commands=False)
-        
+
         # Commands table
         table = Table(
             show_header=True,
@@ -140,21 +138,21 @@ class HelpCommand(BaseCommand):
         table.add_column("Command", style="command", width=15)
         table.add_column("Aliases", style="muted", width=18)
         table.add_column("Description", style="text")
-        
+
         for cmd in COMMANDS:
             table.add_row(
                 cmd["name"],
                 cmd["aliases"],
                 cmd["description"],
             )
-        
+
         console.print(Panel(
             table,
             title="[primary]Available Commands[/primary]",
             border_style="primary",
             padding=(1, 2),
         ))
-        
+
         # Tips
         console.print()
         tips = Text()
@@ -175,11 +173,11 @@ class HelpCommand(BaseCommand):
         tips.append("Press ", style="text")
         tips.append("Ctrl+C", style="warning")
         tips.append(" to cancel current operation", style="text")
-        
+
         console.print(tips)
-        
+
         return True
-    
+
     def _show_command_help(self, cmd_name: str) -> bool:
         """Show detailed help for a specific command."""
         # Find command
@@ -190,14 +188,14 @@ class HelpCommand(BaseCommand):
             if cmd_name == name or cmd_name in aliases:
                 cmd = c
                 break
-        
+
         if not cmd:
             console.print(f"[error]Unknown command: {cmd_name}[/error]")
             console.print("[muted]Use /help to see available commands[/muted]")
             return False
-        
+
         console.print()
-        
+
         # Command details
         text = Text()
         text.append(f"{cmd['name']}\n\n", style="primary.bold")
@@ -206,12 +204,12 @@ class HelpCommand(BaseCommand):
         text.append(f"  {cmd['usage']}\n\n", style="command")
         text.append("Aliases:\n", style="muted")
         text.append(f"  {cmd['aliases']}", style="tertiary")
-        
+
         console.print(Panel(
             text,
             title=f"[primary]📖 {cmd['name']}[/primary]",
             border_style="primary",
             padding=(1, 2),
         ))
-        
+
         return True

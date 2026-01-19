@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-import time
 import sys
-from rich.text import Text
+import time
+
 from rich.align import Align
-from rich.panel import Panel
 from rich.console import Group
 from rich.live import Live
-from cli.ui.console import console
+from rich.text import Text
 
+from cli.ui.console import console
 
 LOGO_LINES = [
     "██╗  ██╗██╗   ██╗██████╗ ██████╗ ██╗██████╗     ██████╗  █████╗  ██████╗ ",
@@ -51,7 +51,7 @@ VERSION = "v0.1.0"
 def create_logo_text(animate_index: int = -1) -> Text:
     """Create the styled logo text with purple-orange gradient."""
     text = Text()
-    
+
     for i, line in enumerate(LOGO_LINES):
         if animate_index >= 0 and i > animate_index:
             # Don't show lines not yet animated
@@ -62,14 +62,14 @@ def create_logo_text(animate_index: int = -1) -> Text:
             text.append("\n")
         elif animate_index >= 0 and i == animate_index:
             text.append("\n")
-    
+
     return text
 
 
 def create_subtitle_text(animate_index: int = -1) -> Text:
     """Create the styled subtitle text."""
     text = Text()
-    
+
     for i, line in enumerate(SUBTITLE_LINES):
         if animate_index >= 0 and i > animate_index:
             continue
@@ -77,26 +77,26 @@ def create_subtitle_text(animate_index: int = -1) -> Text:
         text.append(line, style=f"{color}")
         if i < len(SUBTITLE_LINES) - 1:
             text.append("\n")
-    
+
     return text
 
 
 def create_full_logo(show_tagline: bool = True, show_commands: bool = True) -> Group:
     """Create the full logo with all elements."""
     elements = []
-    
+
     # Main logo
     logo_text = create_logo_text()
     elements.append(Align.center(logo_text))
     elements.append(Text())
-    
+
     # Subtitle
     subtitle_text = create_subtitle_text()
     elements.append(Align.center(subtitle_text))
-    
+
     if show_tagline:
         elements.append(Text())
-        
+
         # Tagline with gradient
         tagline = Text()
         tagline.append("◆ ", style="#FF8C42")
@@ -107,7 +107,7 @@ def create_full_logo(show_tagline: bool = True, show_commands: bool = True) -> G
         tagline.append("Citation Enforcement", style="#9D4EDD")
         tagline.append(" ◆", style="#FF8C42")
         elements.append(Align.center(tagline))
-        
+
         # Version line
         elements.append(Text())
         version = Text()
@@ -115,22 +115,22 @@ def create_full_logo(show_tagline: bool = True, show_commands: bool = True) -> G
         version.append(f" {VERSION} ", style="#888888")
         version.append("─" * 15, style="#555555")
         elements.append(Align.center(version))
-    
+
     if show_commands:
         elements.append(Text())
-        
+
         # Command hints with better styling
         commands_text = Text()
         commands_text.append("Commands: ", style="#888888")
-        
+
         cmds = ["/start", "/query", "/ingest", "/stats", "/doctor", "/help", "/quit"]
         for i, cmd in enumerate(cmds):
             if i > 0:
                 commands_text.append(" • ", style="#555555")
             commands_text.append(cmd, style="#C77DFF bold")
-        
+
         elements.append(Align.center(commands_text))
-    
+
     return Group(*elements)
 
 
@@ -141,9 +141,9 @@ def print_logo_animated(show_tagline: bool = True, show_commands: bool = True) -
         # No animation, just print
         print_logo(show_tagline, show_commands)
         return
-    
+
     console.print()
-    
+
     # Animate main logo lines
     with Live(console=console, refresh_per_second=30, transient=True) as live:
         # Reveal each line of main logo
@@ -151,9 +151,9 @@ def print_logo_animated(show_tagline: bool = True, show_commands: bool = True) -
             text = create_logo_text(animate_index=i)
             live.update(Align.center(text))
             time.sleep(0.06)
-        
+
         time.sleep(0.1)
-    
+
     # Print final static version
     console.print(create_full_logo(show_tagline, show_commands))
     console.print()

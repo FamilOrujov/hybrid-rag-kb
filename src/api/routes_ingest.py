@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, File, UploadFile
 
+from src.api.model_config import get_initial_embed_model
 from src.core.config import settings
 from src.db.sqlite import connect
 from src.rag.embeddings import make_embedder
-from src.rag.vectorstore import FaissIndexManager
 from src.rag.ingest import ingest_files
-from src.api.model_config import get_initial_embed_model
+from src.rag.vectorstore import FaissIndexManager
 
 router = APIRouter()
 

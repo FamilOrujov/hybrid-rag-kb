@@ -55,7 +55,7 @@ def rrf_fuse(
             fused[cid]["vec_score"] = item.get("vec_score")
         fused[cid]["fused_score"] += add
 
-    
+
     merged = list(fused.values())
     merged.sort(key=lambda x: x["fused_score"], reverse=True)
     return merged[:top_k]

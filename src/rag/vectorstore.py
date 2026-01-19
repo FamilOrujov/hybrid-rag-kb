@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
-import numpy as np
 import faiss
+import numpy as np
 
 
 @dataclass
@@ -34,9 +33,9 @@ class FaissIndexManager:
         self.use_gpu = use_gpu
         self.gpu_device = gpu_device
 
-        self.cpu_index: Optional[faiss.Index] = None
-        self.gpu_index: Optional[faiss.Index] = None
-        self.dim: Optional[int] = None
+        self.cpu_index: faiss.Index | None = None
+        self.gpu_index: faiss.Index | None = None
+        self.dim: int | None = None
 
         # Correct, consistent attribute name
         self.index_file = self.dir / "index.faiss"

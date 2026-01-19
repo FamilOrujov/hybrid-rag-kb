@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Tuple
 
 from pypdf import PdfReader
 
 
-def load_text_from_path(path: str) -> Tuple[str, str]:
+def load_text_from_path(path: str) -> tuple[str, str]:
     p = Path(path)
     suffix = p.suffix.lower()
 
@@ -19,7 +18,7 @@ def load_text_from_path(path: str) -> Tuple[str, str]:
         meta = {"type": "pdf", "pages": len(reader.pages)}
         return text, meta
 
-    
+
     # text-like fallback
     data = p.read_bytes()
     text = data.decode("utf-8", errors="ignore")

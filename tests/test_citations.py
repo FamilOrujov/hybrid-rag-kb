@@ -1,10 +1,8 @@
 """Tests for the citation extraction and validation module."""
 
-import pytest
 from src.rag.citations import (
     extract_citations,
     split_paragraphs,
-    extract_citations_from_paragraph,
     validate_citations_detailed,
 )
 
@@ -46,9 +44,9 @@ class TestExtractCitations:
         """Should extract citations across multiple lines."""
         text = """
         First paragraph [cid:1].
-        
+
         Second paragraph [cid:2].
-        
+
         Third [Source: doc.txt | cid:3].
         """
         citations = extract_citations(text)
@@ -106,7 +104,7 @@ class TestValidateCitationsDetailed:
             min_unique_citations=1,
             require_citation_per_paragraph=True,
         )
-        
+
         assert ok is True
         assert report["reason"] == "ok"
 
@@ -118,7 +116,7 @@ class TestValidateCitationsDetailed:
             allowed_chunk_ids=[1, 2],
             min_unique_citations=1,
         )
-        
+
         assert ok is False
         assert report["reason"] == "not enough unique citations"
 
@@ -129,7 +127,7 @@ class TestValidateCitationsDetailed:
             answer_text=text,
             allowed_chunk_ids=[1, 2, 3],
         )
-        
+
         assert ok is False
         assert report["reason"] == "contains invalid citation ids"
         assert 999 in report["invalid_ids"]
@@ -142,7 +140,7 @@ class TestValidateCitationsDetailed:
             allowed_chunk_ids=[1],
             require_citation_per_paragraph=True,
         )
-        
+
         assert ok is False
         assert report["reason"] == "some paragraphs are missing citations"
         assert 1 in report["missing_paragraphs"]
@@ -155,7 +153,7 @@ class TestValidateCitationsDetailed:
             allowed_chunk_ids=[1],
             require_citation_per_paragraph=False,
         )
-        
+
         assert ok is True
 
     def test_report_contains_diagnostics(self):
@@ -165,7 +163,7 @@ class TestValidateCitationsDetailed:
             answer_text=text,
             allowed_chunk_ids=[1, 2],
         )
-        
+
         assert "paragraph_count" in report
         assert "found_citations" in report
         assert "unique_citations_count" in report
@@ -182,6 +180,6 @@ class TestValidateCitationsDetailed:
             min_unique_citations=2,
             require_citation_per_paragraph=False,
         )
-        
+
         assert ok is False
         assert report["unique_citations_count"] == 1

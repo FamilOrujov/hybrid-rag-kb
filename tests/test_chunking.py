@@ -1,6 +1,5 @@
 """Tests for the chunking module."""
 
-import pytest
 from src.rag.chunking import Chunk, chunk_text
 
 
@@ -27,7 +26,7 @@ class TestChunkText:
         """Short text should produce a single chunk."""
         text = "This is a short text."
         chunks = chunk_text(text, {"filename": "test.txt"}, chunk_size=100, chunk_overlap=10)
-        
+
         assert len(chunks) == 1
         assert chunks[0].text == text
         assert chunks[0].metadata["filename"] == "test.txt"
@@ -37,7 +36,7 @@ class TestChunkText:
         """Long text should be split into multiple chunks."""
         text = "Word " * 200  # Creates text longer than default chunk size
         chunks = chunk_text(text, {"doc_id": 42}, chunk_size=100, chunk_overlap=20)
-        
+
         assert len(chunks) > 1
         for i, chunk in enumerate(chunks):
             assert chunk.metadata["chunk_index"] == i
@@ -47,7 +46,7 @@ class TestChunkText:
         """Chunk indices should be sequential starting from 0."""
         text = "Paragraph one. " * 50 + "\n\n" + "Paragraph two. " * 50
         chunks = chunk_text(text, {}, chunk_size=100, chunk_overlap=10)
-        
+
         indices = [c.metadata["chunk_index"] for c in chunks]
         assert indices == list(range(len(chunks)))
 
@@ -56,7 +55,7 @@ class TestChunkText:
         text = "Content " * 100
         base_meta = {"filename": "doc.pdf", "author": "Test", "page": 5}
         chunks = chunk_text(text, base_meta, chunk_size=50, chunk_overlap=5)
-        
+
         for chunk in chunks:
             assert chunk.metadata["filename"] == "doc.pdf"
             assert chunk.metadata["author"] == "Test"
@@ -72,7 +71,7 @@ class TestChunkText:
         """Overlapping chunks should share content at boundaries."""
         text = "AAAA BBBB CCCC DDDD EEEE FFFF GGGG HHHH"
         chunks = chunk_text(text, {}, chunk_size=20, chunk_overlap=5)
-        
+
         if len(chunks) > 1:
             # Check that chunks have some overlap in content
             for i in range(len(chunks) - 1):

@@ -3,14 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import List, Optional
 
 import aiosqlite
 import numpy as np
 from fastapi import UploadFile
 
-from src.rag.loaders import load_text_from_path
 from src.rag.chunking import chunk_text
+from src.rag.loaders import load_text_from_path
 from src.rag.vectorstore import FaissIndexManager
 
 
@@ -18,7 +17,7 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-async def _fetchone(db: aiosqlite.Connection, sql: str, params: tuple) -> Optional[aiosqlite.Row]:
+async def _fetchone(db: aiosqlite.Connection, sql: str, params: tuple) -> aiosqlite.Row | None:
     """
     aiosqlite does not expose execute_fetchone() in its documented API.
     The standard pattern is execute() then cursor.fetchone(). :contentReference[oaicite:2]{index=2}
@@ -29,7 +28,7 @@ async def _fetchone(db: aiosqlite.Connection, sql: str, params: tuple) -> Option
 
 async def ingest_files(
     db: aiosqlite.Connection,
-    files: List[UploadFile],
+    files: list[UploadFile],
     raw_dir: str,
     chunk_size: int,
     chunk_overlap: int,

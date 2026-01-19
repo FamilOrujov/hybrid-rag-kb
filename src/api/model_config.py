@@ -15,25 +15,24 @@ from pathlib import Path
 
 from src.core.config import settings
 
-
 # Persistent configuration file path (stored alongside other data)
 _MODEL_CONFIG_PATH = Path(settings.faiss_dir).parent.parent / "model_config.json"
 
 
 def _load_persistent_config() -> dict[str, str]:
     """Load model configuration from persistent storage.
-    
+
     Returns config from file if it exists, otherwise returns empty dict.
     """
     if _MODEL_CONFIG_PATH.exists():
         try:
-            with open(_MODEL_CONFIG_PATH, "r") as f:
+            with open(_MODEL_CONFIG_PATH) as f:
                 config = json.load(f)
                 return {
                     "chat_model": config.get("chat_model"),
                     "embed_model": config.get("embed_model"),
                 }
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             pass  # Fall back to defaults on error
     return {}
 

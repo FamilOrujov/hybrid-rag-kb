@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import re
 import json
+import re
 from typing import Any
 
-import numpy as np
 import aiosqlite
+import numpy as np
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 
-from src.rag.bm25_fts import bm25_search, make_bm25_query
+from src.rag.bm25_fts import bm25_search
+from src.rag.citations import split_paragraphs, validate_citations_detailed
 from src.rag.hybrid_fusion import rrf_fuse
-from src.rag.vectorstore import FaissIndexManager
 from src.rag.memory import add_message, get_recent_messages
-from src.rag.citations import validate_citations_detailed, split_paragraphs
+from src.rag.vectorstore import FaissIndexManager
 
 
 async def _fetch_chunks_by_ids(
@@ -64,7 +64,7 @@ def _format_context(chunks: list[dict[str, Any]]) -> str:
 def _clean_answer(answer: str, allowed_ids: set[int]) -> str:
     """
     Post-process the answer to remove common LLM artifacts.
-    
+
     Removes:
     - Preamble like "Okay, here's...", "Here is the answer...", etc.
     - Meta-commentary about formatting or citations
@@ -78,11 +78,11 @@ def _clean_answer(answer: str, allowed_ids: set[int]) -> str:
         r"^(?:The )?(?:corrected |revised |formatted )?(?:text|answer|response)[^.]*[.:]\s*",
         r"^I (?:understand|see)[^.]*[.!]\s*",
     ]
-    
+
     cleaned = answer.strip()
     for pattern in preamble_patterns:
         cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
-    
+
     # Remove trailing bibliography/references sections
     bib_patterns = [
         r"\n+(?:References|Bibliography|Sources|Works Cited):?\s*\n.*$",
@@ -91,7 +91,7 @@ def _clean_answer(answer: str, allowed_ids: set[int]) -> str:
     ]
     for pattern in bib_patterns:
         cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE | re.DOTALL)
-    
+
     # Remove lines that are just author names/affiliations (common artifact)
     lines = cleaned.split("\n")
     filtered_lines = []
@@ -107,12 +107,12 @@ def _clean_answer(answer: str, allowed_ids: set[int]) -> str:
         if re.match(r"^(?:Viale|Via|Street|Avenue)\s", line_stripped, re.IGNORECASE):
             continue
         filtered_lines.append(line)
-    
+
     cleaned = "\n".join(filtered_lines).strip()
-    
+
     # Clean up multiple blank lines
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
-    
+
     return cleaned.strip()
 
 
@@ -140,7 +140,7 @@ def _inject_citations_per_paragraph(
 def _build_system_prompt(allowed_ids: list[int]) -> str:
     """Build a clear, direct system prompt."""
     cid_list = ", ".join(str(cid) for cid in allowed_ids)
-    
+
     return f"""You are a research assistant. Your task is to answer questions using ONLY the provided source documents.
 
 RESPONSE FORMAT:
@@ -248,7 +248,7 @@ async def answer_question(
 
     # Generate answer
     answer = chat_model.invoke(messages).content
-    
+
     # Post-process to clean common artifacts
     answer = _clean_answer(answer, allowed_set)
 
@@ -266,8 +266,8 @@ async def answer_question(
         missing = report.get("missing_paragraphs", [])
         if missing:
             answer = _inject_citations_per_paragraph(
-                answer, 
-                cite_tokens=cite_tokens, 
+                answer,
+                cite_tokens=cite_tokens,
                 missing_paragraphs=missing
             )
             ok, report = validate_citations_detailed(
@@ -276,7 +276,7 @@ async def answer_question(
                 min_unique_citations=min_unique_citations,
                 require_citation_per_paragraph=require_citation_per_paragraph,
             )
-        
+
         # If still failing due to invalid IDs, try to fix them
         if not ok and report.get("invalid_ids"):
             # Replace invalid citation IDs with valid ones
@@ -290,7 +290,7 @@ async def answer_question(
                         replacement,
                         answer
                     )
-            
+
             ok, report = validate_citations_detailed(
                 answer_text=answer,
                 allowed_chunk_ids=allowed_ids,

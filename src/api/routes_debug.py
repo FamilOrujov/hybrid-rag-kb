@@ -8,13 +8,13 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from src.api.model_config import get_initial_embed_model
 from src.core.config import settings
 from src.db.sqlite import connect
 from src.rag.bm25_fts import bm25_search, make_bm25_query
 from src.rag.embeddings import make_embedder
 from src.rag.hybrid_fusion import rrf_fuse
 from src.rag.vectorstore import FaissIndexManager
-from src.api.model_config import get_initial_embed_model
 
 router = APIRouter()
 
@@ -112,24 +112,24 @@ async def debug_retrieval(req: RetrievalDebugRequest):
     - Database statistics for context
     """
     timings: dict[str, float] = {}
-    
+
     async with connect(settings.sqlite_path) as db:
         # Get database stats
         t0 = time.perf_counter()
         db_stats = await _get_db_stats(db)
         timings["db_stats_ms"] = (time.perf_counter() - t0) * 1000
-        
+
         # Query analysis
         t0 = time.perf_counter()
         raw_tokens = req.query.lower().split()
         bm25_query_str = make_bm25_query(
-            req.query, 
-            mode=req.bm25_mode, 
+            req.query,
+            mode=req.bm25_mode,
             max_terms=req.bm25_max_terms
         )
         bm25_tokens = bm25_query_str.split() if bm25_query_str else []
         timings["query_analysis_ms"] = (time.perf_counter() - t0) * 1000
-        
+
         query_analysis = {
             "original_query": req.query,
             "original_tokens": raw_tokens,
@@ -141,39 +141,39 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             "bm25_token_count": len(bm25_tokens),
             "tokens_removed": len(raw_tokens) - len(bm25_tokens),
         }
-        
+
         # BM25 Search
         t0 = time.perf_counter()
         bm25_results = await bm25_search(
-            db, 
-            req.query, 
+            db,
+            req.query,
             k=req.bm25_k,
             mode=req.bm25_mode,
             max_terms=req.bm25_max_terms,
         )
         timings["bm25_search_ms"] = (time.perf_counter() - t0) * 1000
-        
+
         # Add rank to BM25 results
         for i, r in enumerate(bm25_results):
             r["bm25_rank"] = i + 1
-        
+
         # Vector Search
         t0 = time.perf_counter()
         qvec = np.array(_embedder.embed_query(req.query), dtype=np.float32)
         query_dim = int(qvec.shape[0])
         timings["embedding_ms"] = (time.perf_counter() - t0) * 1000
-        
+
         t0 = time.perf_counter()
         if _faiss.cpu_index is None:
             _faiss.load_or_create(dim=query_dim)
-        
+
         # Check for dimension mismatch (happens when embedding model changed)
         index_dim = _faiss.dim
         dimension_mismatch = index_dim is not None and query_dim != index_dim
-        
+
         vec_results: list[dict[str, Any]] = []
         vec_error: str | None = None
-        
+
         if dimension_mismatch:
             vec_error = (
                 f"Dimension mismatch: Query embedding has {query_dim} dimensions, "
@@ -186,12 +186,12 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             try:
                 vec = _faiss.search(qvec, k=req.vec_k)
                 timings["faiss_search_ms"] = (time.perf_counter() - t0) * 1000
-                
+
                 # Fetch chunk details for vector results
                 t0 = time.perf_counter()
                 chunk_map = await _fetch_chunks_by_ids(db, vec.ids)
                 timings["chunk_fetch_ms"] = (time.perf_counter() - t0) * 1000
-                
+
                 for rank, (cid, score) in enumerate(zip(vec.ids, vec.scores), start=1):
                     if cid in chunk_map:
                         item = dict(chunk_map[cid])
@@ -201,7 +201,7 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             except ValueError as e:
                 vec_error = str(e)
                 timings["faiss_search_ms"] = 0
-        
+
         # RRF Fusion
         t0 = time.perf_counter()
         fused = rrf_fuse(
@@ -213,14 +213,14 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             top_k=req.top_k,
         )
         timings["rrf_fusion_ms"] = (time.perf_counter() - t0) * 1000
-        
+
         # Compute overlap analysis
         bm25_ids = {r["chunk_id"] for r in bm25_results}
         vec_ids = {r["chunk_id"] for r in vec_results}
         overlap_ids = bm25_ids & vec_ids
         bm25_only_ids = bm25_ids - vec_ids
         vec_only_ids = vec_ids - bm25_ids
-        
+
         # Add source info to fused results
         for item in fused:
             cid = item["chunk_id"]
@@ -230,7 +230,7 @@ async def debug_retrieval(req: RetrievalDebugRequest):
             # Find ranks
             item["bm25_rank"] = next((r["bm25_rank"] for r in bm25_results if r["chunk_id"] == cid), None)
             item["vec_rank"] = next((r["vec_rank"] for r in vec_results if r["chunk_id"] == cid), None)
-        
+
         # Compute RRF contribution breakdown for top results
         for item in fused:
             bm25_contrib = 0.0
@@ -241,7 +241,7 @@ async def debug_retrieval(req: RetrievalDebugRequest):
                 vec_contrib = req.w_vec / (req.rrf_k + item["vec_rank"])
             item["rrf_bm25_contribution"] = bm25_contrib
             item["rrf_vec_contribution"] = vec_contrib
-        
+
         timings["total_ms"] = sum(timings.values())
 
     return {

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from langchain_ollama import OllamaEmbeddings
 import httpx
+from langchain_ollama import OllamaEmbeddings
 
 
 def make_embedder(base_url: str, model: str, timeout: float = 600.0) -> OllamaEmbeddings:

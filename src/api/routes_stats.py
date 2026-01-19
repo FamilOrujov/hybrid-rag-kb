@@ -5,9 +5,9 @@ from typing import Any
 
 from fastapi import APIRouter
 
+from src.api.routes_models import get_current_models
 from src.core.config import settings
 from src.db.sqlite import connect
-from src.api.routes_models import get_current_models
 
 router = APIRouter()
 

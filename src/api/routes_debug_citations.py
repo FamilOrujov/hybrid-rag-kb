@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from fastapi import APIRouter
-from pydantic import BaseModel
 from langchain_ollama import ChatOllama
+from pydantic import BaseModel
 
+from src.api.model_config import get_initial_chat_model, get_initial_embed_model
 from src.core.config import settings
 from src.db.sqlite import connect
-from src.rag.embeddings import make_embedder
-from src.rag.vectorstore import FaissIndexManager
-from src.rag.qa import answer_question
 from src.rag.citations import validate_citations_detailed
-from src.api.model_config import get_initial_chat_model, get_initial_embed_model
+from src.rag.embeddings import make_embedder
+from src.rag.qa import answer_question
+from src.rag.vectorstore import FaissIndexManager
 
 router = APIRouter()
 

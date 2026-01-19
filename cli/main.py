@@ -3,36 +3,29 @@
 from __future__ import annotations
 
 import sys
-import time
 from pathlib import Path
-from typing import Optional
 
 from prompt_toolkit import PromptSession
-from prompt_toolkit.styles import Style
 from prompt_toolkit.formatted_text import HTML
-from rich.text import Text
-from rich.live import Live
+from prompt_toolkit.styles import Style
 
-from cli import __version__, __app_name__
-from cli.core.config import CLIConfig, get_config, set_config
+from cli import __version__
+from cli.commands.chunks import ChunksCommand
+from cli.commands.debug import DebugCommand
+from cli.commands.doctor import DoctorCommand
+from cli.commands.help import HelpCommand
+from cli.commands.ingest import IngestCommand
+from cli.commands.model import ModelCommand
+from cli.commands.query import InteractiveQueryCommand, QueryCommand
+from cli.commands.reset import ResetCommand
+from cli.commands.start import RestartCommand, StartCommand, StopCommand
+from cli.commands.stats import StatsCommand
 from cli.core.api_client import APIClient
-from cli.ui.console import console, print_error, print_warning
+from cli.core.config import CLIConfig, get_config, set_config
+from cli.ui.console import console, print_error
 from cli.ui.logo import print_logo, print_logo_animated
-from cli.ui.theme import get_theme
 from cli.utils.completions import CommandCompleter
 from cli.utils.history import CommandHistory
-
-from cli.commands.start import StartCommand, StopCommand, RestartCommand
-from cli.commands.query import QueryCommand, InteractiveQueryCommand
-from cli.commands.ingest import IngestCommand
-from cli.commands.stats import StatsCommand
-from cli.commands.debug import DebugCommand
-from cli.commands.chunks import ChunksCommand
-from cli.commands.help import HelpCommand
-from cli.commands.doctor import DoctorCommand
-from cli.commands.reset import ResetCommand
-from cli.commands.model import ModelCommand
-
 
 # Prompt styling
 PROMPT_STYLE = Style.from_dict({
@@ -51,17 +44,17 @@ PROMPT_STYLE = Style.from_dict({
 
 class HybridRAGCLI:
     """Main CLI application."""
-    
-    def __init__(self, config: Optional[CLIConfig] = None):
+
+    def __init__(self, config: CLIConfig | None = None):
         self.config = config or get_config()
         set_config(self.config)
-        
+
         # Initialize components
         self.history = CommandHistory(
             Path.home() / ".hybrid-rag" / "history"
         )
         self.completer = CommandCompleter()
-        
+
         # Command registry
         self.commands = {
             "start": StartCommand(self.config),
@@ -99,7 +92,7 @@ class HybridRAGCLI:
             "h": HelpCommand(self.config),
             "?": HelpCommand(self.config),
         }
-        
+
         # Create prompt session
         self.session = PromptSession(
             history=self.history.history,
@@ -109,46 +102,46 @@ class HybridRAGCLI:
             complete_in_thread=True,
             mouse_support=False,
         )
-    
+
     def get_prompt(self) -> HTML:
         """Generate the prompt."""
         return HTML('<prompt>❯</prompt> ')
-    
+
     def run(self) -> int:
         """Run the CLI REPL."""
         # Show logo on startup with animation
         console.clear()
         print_logo_animated()
         console.print()
-        
+
         # Check server status
         self._check_server_status()
-        
+
         # Main REPL loop
         while True:
             try:
                 # Get input
                 user_input = self.session.prompt(self.get_prompt()).strip()
-                
+
                 if not user_input:
                     continue
-                
+
                 # Add to history
                 self.history.add(user_input)
-                
+
                 # Parse command
                 cmd_name, args = self._parse_input(user_input)
-                
+
                 # Handle built-in commands
                 if cmd_name in ["quit", "exit"]:
                     console.print("[muted]Goodbye.[/muted]")
                     return 0
-                
+
                 if cmd_name == "clear":
                     console.clear()
                     print_logo(show_tagline=False, show_commands=False)
                     continue
-                
+
                 # Execute command
                 if cmd_name in self.commands:
                     try:
@@ -164,9 +157,9 @@ class HybridRAGCLI:
                     else:
                         print_error(f"Unknown command: {cmd_name}")
                         console.print("[muted]Type /help for available commands[/muted]")
-                
+
                 console.print()
-                
+
             except KeyboardInterrupt:
                 console.print("\n[muted]Type /quit to exit[/muted]")
             except EOFError:
@@ -174,41 +167,41 @@ class HybridRAGCLI:
                 return 0
             except Exception as e:
                 print_error(f"Unexpected error: {e}")
-        
+
         return 0
-    
+
     def _parse_input(self, user_input: str) -> tuple[str, list[str]]:
         """Parse user input into command and arguments."""
         parts = user_input.split()
-        
+
         if not parts:
             return "", []
-        
+
         cmd = parts[0].lower().lstrip("/")
         args = parts[1:]
-        
+
         return cmd, args
-    
+
     def _check_server_status(self) -> None:
         """Check if the server is running and show status."""
         api = APIClient(self.config.base_url)
-        
+
         try:
             response = api.health()
             if response.success:
                 console.print(f"  [success]●[/success] Server running at [primary]{self.config.base_url}[/primary]")
             else:
-                console.print(f"  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
+                console.print("  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
         except Exception:
-            console.print(f"  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
-        
+            console.print("  [warning]○[/warning] Server not running. Use [command]/start[/command] to launch.")
+
         console.print()
 
 
 def main():
     """Main entry point."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Hybrid RAG CLI - Modern interface for Hybrid RAG KB",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -234,21 +227,21 @@ def main():
         nargs="?",
         help="Command to execute (optional, starts REPL if not provided)",
     )
-    
+
     # Use parse_known_args to allow command-specific flags to pass through
     args, remaining = parser.parse_known_args()
     args.args = remaining
-    
+
     # Create config
     config = CLIConfig(
         host=args.host,
         port=args.port,
         project_root=Path.cwd(),
     )
-    
+
     # Create CLI
     cli = HybridRAGCLI(config)
-    
+
     # If command provided, execute it and exit
     if args.command:
         cmd_name = args.command.lower().lstrip("/")
@@ -258,7 +251,7 @@ def main():
         else:
             print_error(f"Unknown command: {args.command}")
             sys.exit(1)
-    
+
     # Otherwise, run interactive REPL
     sys.exit(cli.run())
 

@@ -1,9 +1,10 @@
 """Pytest configuration and shared fixtures."""
 
-import pytest
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
@@ -24,11 +25,11 @@ def sample_text():
     Artificial intelligence has made remarkable progress in recent years.
     Machine learning models can now understand and generate human language
     with unprecedented accuracy.
-    
+
     Deep learning architectures like transformers have revolutionized
     natural language processing. These models learn patterns from vast
     amounts of text data.
-    
+
     Retrieval augmented generation combines the power of large language
     models with external knowledge bases. This approach grounds AI responses
     in factual information.
@@ -66,10 +67,10 @@ def sample_answer_with_citations():
     return """
     Machine learning represents a fundamental shift in how we approach
     problem solving with computers [Source: ml_basics.pdf | cid:1].
-    
+
     The architecture of neural networks draws inspiration from biological
     systems, specifically the way neurons communicate [Source: ml_basics.pdf | cid:2].
-    
+
     Modern language models rely heavily on transformer architectures,
     which use self-attention to process sequences [Source: transformers.pdf | cid:3].
     """

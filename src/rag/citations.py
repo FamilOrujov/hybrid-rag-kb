@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable, Set, List, Dict, Any, Tuple
-
+from collections.abc import Iterable
+from typing import Any
 
 # Old format
 _CID_SIMPLE = re.compile(r"\[cid:(\d+)\]")
@@ -12,7 +12,7 @@ _CID_SIMPLE = re.compile(r"\[cid:(\d+)\]")
 _CID_SOURCE = re.compile(r"\[Source:[^\]]*?\bcid:(\d+)\b[^\]]*\]")
 
 
-def extract_citations(text: str) -> Set[int]:
+def extract_citations(text: str) -> set[int]:
     """
     Extract unique citation ids from an answer.
 
@@ -20,13 +20,13 @@ def extract_citations(text: str) -> Set[int]:
     - [cid:123]
     - [Source: filename | cid:123]
     """
-    out: Set[int] = set()
+    out: set[int] = set()
     out.update(int(m.group(1)) for m in _CID_SIMPLE.finditer(text))
     out.update(int(m.group(1)) for m in _CID_SOURCE.finditer(text))
     return out
 
 
-def split_paragraphs(text: str) -> List[str]:
+def split_paragraphs(text: str) -> list[str]:
     """
     Split into paragraphs using blank lines.
     """
@@ -34,8 +34,8 @@ def split_paragraphs(text: str) -> List[str]:
     return [p.strip() for p in parts if p.strip()]
 
 
-def extract_citations_from_paragraph(paragraph: str) -> Set[int]:
-    out: Set[int] = set()
+def extract_citations_from_paragraph(paragraph: str) -> set[int]:
+    out: set[int] = set()
     out.update(int(m.group(1)) for m in _CID_SIMPLE.finditer(paragraph))
     out.update(int(m.group(1)) for m in _CID_SOURCE.finditer(paragraph))
     return out
@@ -47,7 +47,7 @@ def validate_citations_detailed(
     allowed_chunk_ids: Iterable[int],
     min_unique_citations: int = 1,
     require_citation_per_paragraph: bool = True,
-) -> Tuple[bool, Dict[str, Any]]:
+) -> tuple[bool, dict[str, Any]]:
     """
     Validate citations with detailed diagnostics.
 
@@ -59,8 +59,8 @@ def validate_citations_detailed(
     allowed = {int(x) for x in allowed_chunk_ids}
 
     paragraphs = split_paragraphs(answer_text)
-    per_paragraph: List[List[int]] = []
-    missing_paragraphs: List[int] = []
+    per_paragraph: list[list[int]] = []
+    missing_paragraphs: list[int] = []
 
     for i, p in enumerate(paragraphs):
         cids = sorted(extract_citations_from_paragraph(p))
@@ -71,7 +71,7 @@ def validate_citations_detailed(
     found = sorted({cid for cids in per_paragraph for cid in cids})
     invalid = sorted([cid for cid in found if cid not in allowed])
 
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "paragraph_count": len(paragraphs),
         "found_citations": found,
         "unique_citations_count": len(found),

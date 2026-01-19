@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -12,7 +12,7 @@ class Chunk:
     metadata: dict[str, Any]
 
 
-def chunk_text(text: str, base_metadata: dict[str, Any], chunk_size: int, chunk_overlap: int) -> List[Chunk]:
+def chunk_text(text: str, base_metadata: dict[str, Any], chunk_size: int, chunk_overlap: int) -> list[Chunk]:
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from src.api.routes import router
 from src.core.config import settings
 from src.db.sqlite import init_db
-
 
 
 @asynccontextmanager
