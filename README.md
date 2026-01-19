@@ -13,6 +13,10 @@
 <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-2.12+-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic"></a>
 <a href="https://rich.readthedocs.io/"><img src="https://img.shields.io/badge/Rich-CLI-4B8BBE?style=for-the-badge" alt="Rich"></a>
 
+<a href="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/tests.yml"><img src="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+<a href="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/lint.yml"><img src="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/lint.yml/badge.svg" alt="Code Quality"></a>
+<a href="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/security.yml"><img src="https://github.com/FamilOrujov/hybrid-rag-kb/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+
 ![Hybrid RAG Demo](assets/hybrid_rag_main.gif)
 
 *Hybrid RAG is a local knowledge base system I built to explore how modern retrieval pipelines work under the hood. It combines BM25 keyword search with FAISS vector similarity, fuses them using Reciprocal Rank Fusion, and generates answers through a local LLM with strict citation enforcement. Everything runs on your machine, no API keys required, no data leaving your system.*
