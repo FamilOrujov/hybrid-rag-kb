@@ -22,7 +22,7 @@
 
 ---
 
-## Table of Contents
+## Table of Contents.
 
 1. [Overview](#1-overview)
    - 1.1 [About This Project](#11-about-this-project)
